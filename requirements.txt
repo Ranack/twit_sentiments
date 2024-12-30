@@ -11,3 +11,5 @@ httpx
 pytest
 pytest-cov
 pytest-html
+transformers
+tf-keras
