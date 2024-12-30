@@ -1,4 +1,3 @@
-fastapi
 uvicorn
 transformers
 tensorflow
@@ -6,3 +5,9 @@ pandas
 scikit-learn
 matplotlib
 mlflow
+httpx
+fastapi
+httpx
+pytest
+pytest-cov
+pytest-html
