@@ -43,17 +43,20 @@ jobs:
         run: |
           nohup python API.py > api_logs.txt 2>&1 &
           echo "API lancée, en attente de sa disponibilité..."
-          sleep 10  # Attendre un peu plus longtemps pour que l'API démarre
+          sleep 10  # Attente pour que l'API démarre
+          # Vérification de la disponibilité de l'API
           for i in {1..60}; do
-            if curl -s http://127.0.0.1:8080; then  # Vérifier sur le port 8080
+            if curl -s http://127.0.0.1:8080; then  # Vérification sur le port 8080
               echo "API disponible !"
               break
             fi
             sleep 1
           done
+          # Si l'API n'est pas disponible après 60 secondes
           if [ $i -eq 60 ]; then
             echo "L'API n'est pas disponible après 60 secondes. Échec."
             exit 1
+          fi
 
       - name: Display API logs on failure
         if: failure()
