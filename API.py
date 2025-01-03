@@ -40,7 +40,8 @@ def predict(request: PredictionRequest):
         tokenizer, model = load_roberta_model_and_tokenizer("./fine_tuned_roberta")
         
         # Tokenisation
-        inputs = tokenizer(request.text, return_tensors="tf", max_length=64, padding="max_length", truncation=True)
+        inputs = tokenizer(request.text, return_tensors="tf", max_length=64, padding="max_length",
+            truncation=True)
         logger.info("Tokenisation terminée.")
         
         # Vérification des entrées tokenisées
@@ -51,7 +52,8 @@ def predict(request: PredictionRequest):
         probabilities = tf.nn.softmax(logits, axis=-1).numpy()[0]
         predicted_label = tf.argmax(probabilities).numpy()
         
-        logger.info(f"Label prédit : {predicted_label}, Confiance : {probabilities[predicted_label]}")
+        logger.info(f"Label prédit : {predicted_label}, 
+            Confiance : {probabilities[predicted_label]}")
         
         return {
             "text": request.text,
