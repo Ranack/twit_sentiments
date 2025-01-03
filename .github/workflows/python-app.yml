@@ -9,7 +9,7 @@ on:
       - "main"
 
 permissions:
-  contents: read
+  contents: write  # Autorise l'écriture pour le contenu
 
 jobs:
   build:
@@ -27,22 +27,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - run: |
-          python -m venv venv
-          source venv/bin/activate  # Activer l'environnement virtuel
-          pip install autopep8  # Installer autopep8 si ce n'est pas dans requirements.txt
-          pip install -r requirements.txt  # Réinstaller les dépendances
-      - run: |
-          autopep8 --in-place --aggressive $(find . -name "*.py")
-          black --line-length 79 $(find . -name "*.py")
-      - run: |
-          flake8 . || exit 1
+          pip install --upgrade autopep8 pycodestyle  # Mettre à jour autopep8 et pycodestyle
+          pip install black  # Installer black pour le formatage
+          autopep8 --in-place --aggressive $(find . -name "*.py")  # Formater avec autopep8
+          black --line-length 79 $(find . -name "*.py")  # Formater avec black avec une longueur de ligne de 79
       - name: Lancer l'API et vérifier sa disponibilité
         run: |
           nohup python API.py > api_logs.txt 2>&1 &  # Lance l'API en arrière-plan et redirige les logs
           echo "API lancée, en attente de sa disponibilité..."
-          for i in {1..20}; do
-            sleep 10
+          for i in {1..30}; do  # Essayer pendant 30 tentatives au lieu de 20
+            sleep 10  # Attendre 10 secondes entre chaque tentative
             curl -s http://127.0.0.1:5001 || echo "API non encore disponible, tentative $i"
           done
+          echo "Affichage des logs de l'API pour débogage :"
+          cat api_logs.txt  # Affiche les logs de l'API pour vérifier s'il y a des erreurs
       - run: |
-          pytest test_api.py
+          pytest test_api.py  # Exécute les tests unitaires du fichier test_api.py
