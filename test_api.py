@@ -25,7 +25,7 @@ def test_predict_valid_text():
 
 # Test 3 : Vérifier une prédiction négative
 def test_predict_negative_text():
-    payload = {"text": "I hate this app. It is the worst experience I've ever had."}
+    payload = {"text": "I hate this app."}
     response = client.post("/predict/", json=payload)
     assert response.status_code == 200
     data = response.json()
