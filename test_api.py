@@ -48,7 +48,7 @@ def test_predict_missing_text():
     assert response.status_code == 422  # Erreur de validation (Unprocessable Entity)
     assert "detail" in response.json()
 
-# Test 5 : Vérifier la réponse pour une requête contenant des caractères spéciaux
+# Test 5 : Vérifier réponse pour une requête contenant des caractères spéciaux
 def test_predict_special_characters():
     payload = {"text": "@#%&*()$!"}
     response = client.post("/predict/", json=payload)
