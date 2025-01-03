@@ -28,16 +28,17 @@ jobs:
           pip install -r requirements.txt
           pip install flake8 autopep8 black  # Installe les dépendances nécessaires
           
-      # Formater le code avec autopep8 (en utilisant find pour cibler uniquement les fichiers .py)
+      # Formater le code avec autopep8
       - run: |
           autopep8 --in-place --aggressive $(find . -name "*.py")  # Formate uniquement les fichiers Python
           
-      # Formater le code avec black (assure-toi qu'il fonctionne après autopep8)
+      # Formater le code avec black
       - run: |
           black $(find . -name "*.py")  # Formate uniquement les fichiers Python avec black
           
       # Exécuter flake8 pour vérifier les erreurs de style
       - run: |
+          echo "Running flake8..."
           flake8 . || exit 1  # Exécute flake8 et échoue si des erreurs sont détectées
           
       # Exécuter les tests unitaires avec pytest
