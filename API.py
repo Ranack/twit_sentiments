@@ -4,14 +4,18 @@ from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 import pandas as pd
+import os
 import mlflow
 import mlflow.tensorflow
 import mlflow.pyfunc
 import matplotlib.pyplot as plt
 
-# Configuration de MLFlow
-mlflow.set_tracking_uri("http://127.0.0.1:5001")
-mlflow.set_experiment("Fine_tuning_RoBERTa_Optimized")
+# Configuration conditionnelle de MLflow
+if not os.getenv("IGNORE_MLFLOW"):
+    mlflow.set_tracking_uri("http://127.0.0.1:5001")
+    mlflow.set_experiment("Fine_tuning_RoBERTa_Optimized")
+else:
+    print("MLflow est désactivé.")
 
 
 # Fonction pour charger et préparer les données
@@ -207,13 +211,19 @@ def main():
     learning_rate = 2e-4
     compile_model(model, learning_rate)
     
-    with mlflow.start_run(run_name="Fine-tuning_RoBERTa_Optimized") as run:
+    if not os.getenv("IGNORE_MLFLOW"):
+        with mlflow.start_run(run_name="Fine-tuning_RoBERTa_Optimized") as run:
+            history = train_model(model, train_dataset, test_dataset, epochs)
+            test_loss, test_accuracy = evaluate_model(model, test_dataset)
+            model_dir = "./fine_tuned_roberta"
+            save_model_and_tokenizer(model, tokenizer, model_dir)
+            log_metrics_in_mlflow(run, epochs, batch_size, learning_rate, max_len, test_loss, test_accuracy, model_dir)
+            plot_and_save_graphs(history)
+    else:
+        print("Entraînement sans MLflow.")
         history = train_model(model, train_dataset, test_dataset, epochs)
         test_loss, test_accuracy = evaluate_model(model, test_dataset)
-        model_dir = "./fine_tuned_roberta"
-        save_model_and_tokenizer(model, tokenizer, model_dir)
-        log_metrics_in_mlflow(run, epochs, batch_size, learning_rate, max_len, test_loss, test_accuracy, model_dir)
-        plot_and_save_graphs(history)
+        print(f"Test Loss: {test_loss}, Test Accuracy: {test_accuracy}")
 
 
 if __name__ == "__main__":
