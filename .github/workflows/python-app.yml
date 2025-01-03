@@ -65,6 +65,8 @@ jobs:
       - name: Run tests
         run: |
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+          # Set an environment variable to ignore MLflow during tests (set only for testing phase)
+          export IGNORE_MLFLOW=true
           pytest
 
       - name: Cleanup
