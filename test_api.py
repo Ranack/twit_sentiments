@@ -1,9 +1,9 @@
 import pytest
 from fastapi.testclient import TestClient
-from API import app  # Assurez-vous que le fichier principal s'appelle API.py et contient l'application FastAPI
+from API import app 
 
 # Initialisation du client de test
-client = TestClient(app)
+client = TestClient(app) 
 
 # Test 1 : Vérifier que l'API retourne un message pour l'endpoint racine
 def test_root_endpoint():
@@ -58,4 +58,3 @@ def test_predict_special_characters():
     assert "confidence" in data
     assert isinstance(data["predicted_label"], int)
     assert isinstance(data["confidence"], float)
-
