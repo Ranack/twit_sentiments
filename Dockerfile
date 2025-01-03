@@ -1,10 +1,12 @@
 # Étape 1 : Compression des modèles (localement ou depuis un autre conteneur)
-FROM python:3.9-alpine as compressor
+FROM python:3.9-slim as compressor
 
 WORKDIR /models
 
 # Installer les outils nécessaires pour tar
-RUN apk add --no-cache bash
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copier les modèles dans l'image temporaire
 COPY fine_tuned_roberta/ ./fine_tuned_roberta/
@@ -13,15 +15,15 @@ COPY fine_tuned_roberta/ ./fine_tuned_roberta/
 RUN tar -czvf fine_tuned_roberta.tar.gz fine_tuned_roberta
 
 # Étape 2 : Image principale pour l'application
-FROM python:3.9-alpine
+FROM python:3.9-slim
 
 WORKDIR /app
 
 # Installer les dépendances système nécessaires (sans recommandations inutiles)
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     bash \
-    wget \
-    && rm -rf /var/cache/apk/*
+    wget && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copier et installer les dépendances Python
 COPY requirements.txt ./
