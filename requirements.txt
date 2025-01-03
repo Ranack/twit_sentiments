@@ -7,3 +7,5 @@ scikit-learn
 matplotlib
 mlflow
 pytest>=7.0
+httpx
+flake8
