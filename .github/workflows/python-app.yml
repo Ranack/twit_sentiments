@@ -43,8 +43,9 @@ jobs:
         run: |
           nohup python API.py > api_logs.txt 2>&1 &
           echo "API lancée, en attente de sa disponibilité..."
+          sleep 10  # Attendre un peu plus longtemps pour que l'API démarre
           for i in {1..60}; do
-            if curl -s http://127.0.0.1:8000; then
+            if curl -s http://127.0.0.1:8080; then  # Vérifier sur le port 8080
               echo "API disponible !"
               break
             fi
@@ -56,7 +57,12 @@ jobs:
 
       - name: Display API logs on failure
         if: failure()
-        run: cat api_logs.txt
+        run: |
+          echo "Affichage des logs de l'API en cas d'échec..."
+          tail -n 50 api_logs.txt  # Afficher les 50 dernières lignes des logs
 
       - name: Run tests
-        run: pytest test_api.py
+        run: |
+          echo "Attente avant les tests..."
+          sleep 20  # Attendre 20 secondes avant d'exécuter les tests
+          pytest test_api.py
