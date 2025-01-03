@@ -9,37 +9,54 @@ on:
       - "main"
 
 permissions:
-  contents: write  # Autorise l'écriture pour le contenu
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.8", "3.9", "3.10"]
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v3
         with:
-          python-version: ${{ matrix.python-version }}
-      - run: |
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - run: |
-          pip install --upgrade autopep8 pycodestyle  # Mettre à jour autopep8 et pycodestyle
-          pip install black  # Installer black pour le formatage
-          autopep8 --in-place --aggressive $(find . -name "*.py")  # Formater avec autopep8
-          black --line-length 79 $(find . -name "*.py")  # Formater avec black avec une longueur de ligne de 79
-      - name: Lancer l'API et vérifier sa disponibilité
+          pip install tensorflow-cpu
+
+      - name: Inspect model files
         run: |
-          nohup python API.py > api_logs.txt 2>&1 &  # Lance l'API en arrière-plan et redirige les logs
-          echo "API lancée, en attente de sa disponibilité..."
-          for i in {1..30}; do  # Essayer pendant 30 tentatives au lieu de 20
-            sleep 10  # Attendre 10 secondes entre chaque tentative
-            curl -s http://127.0.0.1:5001 || echo "API non encore disponible, tentative $i"
+          echo "Vérification des fichiers du modèle..."
+          ls -lh ./fine_tuned_roberta
+          for file in ./fine_tuned_roberta/*; do
+            echo "Contenu de $file :"
+            cat "$file"
           done
-          echo "Affichage des logs de l'API pour débogage :"
-          cat api_logs.txt  # Affiche les logs de l'API pour vérifier s'il y a des erreurs
-      - run: |
-          pytest test_api.py  # Exécute les tests unitaires du fichier test_api.py
+
+      - name: Launch API
+        run: |
+          nohup python API.py > api_logs.txt 2>&1 &
+          echo "API lancée, en attente de sa disponibilité..."
+          for i in {1..60}; do
+            if curl -s http://127.0.0.1:8000; then
+              echo "API disponible !"
+              break
+            fi
+            sleep 1
+          done
+          if [ $i -eq 60 ]; then
+            echo "L'API n'est pas disponible après 60 secondes. Échec."
+            exit 1
+
+      - name: Display API logs on failure
+        if: failure()
+        run: cat api_logs.txt
+
+      - name: Run tests
+        run: pytest test_api.py
