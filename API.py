@@ -52,8 +52,7 @@ def predict(request: PredictionRequest):
         probabilities = tf.nn.softmax(logits, axis=-1).numpy()[0]
         predicted_label = tf.argmax(probabilities).numpy()
         
-        logger.info(f"Label prédit : {predicted_label}, 
-            Confiance : {probabilities[predicted_label]}")
+        logger.info(f"Label prédit : {predicted_label}, Confiance : {probabilities[predicted_label]}")
         
         return {
             "text": request.text,
