@@ -28,6 +28,7 @@ jobs:
           pip install -r requirements.txt
       - run: |
           pip install --upgrade autopep8 pycodestyle  # Mettre à jour autopep8 et pycodestyle
+          pip install black  # Installer black pour le formatage
           autopep8 --in-place --aggressive $(find . -name "*.py")  # Formater avec autopep8
           black --line-length 79 $(find . -name "*.py")  # Formater avec black
       - run: |
