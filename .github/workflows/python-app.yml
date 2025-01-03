@@ -3,10 +3,10 @@ name: Python application
 on:
   push:
     branches:
-      - "main"  # Déclenche le workflow sur un push vers la branche 'main'
+      - "main"
   pull_request:
     branches:
-      - "main"  # Déclenche le workflow lors d'une demande de tirage vers la branche 'main'
+      - "main"
 
 permissions:
   contents: read
@@ -38,47 +38,25 @@ jobs:
 
       - name: Start FastAPI server
         run: |
-          nohup uvicorn API:app --host 0.0.0.0 --port 8000 &  # Lance l'API FastAPI en arrière-plan
+          nohup uvicorn API:app --host 0.0.0.0 --port 8000 > api.log 2>&1 &  # Lance l'API et enregistre les logs dans un fichier
+
+      - name: Display API logs
+        run: |
+          tail -n 10 api.log  # Affiche les 10 dernières lignes des logs pour vérifier l'état du serveur
 
       - name: Test API is running
         run: |
-          sleep 30  # Attente pour être sûr que l'API soit lancée
+          sleep 60  # Augmente le délai d'attente pour être sûr que l'API soit lancée
           curl -X GET http://localhost:8000  # Vérifie que l'API répond
 
       - name: Run tests
         run: |
           export IGNORE_MLFLOW=true
-          pytest  # Lance les tests une fois que l'API est confirmée en fonctionnement
+          pytest
 
-      - name: Archive test reports
-        if: failure()
+      - name: Cleanup
         run: |
-          mkdir -p test-reports
-          mv *.xml test-reports/  # Déplace les rapports de test en cas d'échec
-        continue-on-error: true
-
-      - name: Upload test reports
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-reports
-          path: test-reports
-
-      - name: Upload coverage report
-        if: success()
-        run: |
-          pip install coverage
-          coverage run -m pytest
-          coverage report -m
-          coverage html -d coverage_html_report
-        continue-on-error: true
-
-      - name: Upload coverage artifacts
-        if: success()
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-report
-          path: coverage_html_report
+          rm -rf *.log *.tmp
 
   docker:
     needs: build
