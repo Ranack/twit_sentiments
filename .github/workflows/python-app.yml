@@ -9,9 +9,7 @@ on:
       - "main"
 
 permissions:
-  contents: 
-    read: true
-    write: true  # Ajout de la permission write
+  contents: write  # Autorise l'écriture pour le contenu
 
 jobs:
   build:
