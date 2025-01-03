@@ -26,21 +26,23 @@ jobs:
       - run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install flake8 autopep8 black  # Installe flake8, autopep8 et black
       - run: |
-          # Formater les fichiers Python avec autopep8 et black
-          autopep8 --in-place --aggressive $(find . -name "*.py")  # Formate avec autopep8
-          black --line-length 79 $(find . -name "*.py")  # Formate avec black avec une longueur de ligne de 79 caractères
+          python -m venv venv
+          source venv/bin/activate  # Activer l'environnement virtuel
+          pip install -r requirements.txt  # Réinstaller les dépendances dans l'environnement virtuel
       - run: |
-          # Exécution de flake8 pour vérifier la qualité du code avec l'option d'ignorer les erreurs de longueur de ligne
-          flake8 --ignore=E501 . || exit 1  # Ignorer l'erreur de longueur de ligne
+          # Vérification du formatage avec autopep8 et black
+          autopep8 --in-place --aggressive $(find . -name "*.py")
+          black --line-length 79 $(find . -name "*.py")
+      - run: |
+          flake8 . || exit 1
       - name: Lancer l'API et vérifier sa disponibilité
         run: |
           nohup python API.py > api_logs.txt 2>&1 &  # Lance l'API en arrière-plan et redirige les logs
           echo "API lancée, en attente de sa disponibilité..."
-          for i in {1..20}; do  # Essayer pendant 20 tentatives
-            sleep 10  # Attendre 10 secondes entre chaque tentative
+          for i in {1..20}; do
+            sleep 10
             curl -s http://127.0.0.1:5001 || echo "API non encore disponible, tentative $i"
           done
       - run: |
-          pytest test_api.py  # Exécute les tests unitaires du fichier test_api.py
+          pytest test_api.py
