@@ -57,7 +57,9 @@ jobs:
 
       - name: Display API logs on failure
         if: failure()
-        run: tail -n 10 api_logs.txt  # Affiche les 10 dernières lignes des logs
+        run: |
+          echo "Affichage des logs de l'API en cas d'échec..."
+          tail -n 10 api_logs.txt  # Affiche les 10 dernières lignes des logs
 
       - name: Run tests
         run: pytest test_api.py
