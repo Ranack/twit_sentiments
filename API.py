@@ -8,10 +8,13 @@ import mlflow
 import mlflow.tensorflow
 import mlflow.pyfunc
 import matplotlib.pyplot as plt
+from unittest.mock import patch
+import os
 
 # Configuration de MLFlow
-mlflow.set_tracking_uri("http://127.0.0.1:5001")
-mlflow.set_experiment("Fine_tuning_RoBERTa_Optimized")
+if not os.getenv("IGNORE_MLFLOW"):  # N'initialisez MLFlow que si l'environnement ne demande pas son ignoré
+    mlflow.set_tracking_uri("http://127.0.0.1:5001")
+    mlflow.set_experiment("Fine_tuning_RoBERTa_Optimized")
 
 
 # Fonction pour charger et préparer les données
@@ -104,21 +107,22 @@ def save_model_and_tokenizer(model, tokenizer, model_dir):
 
 # Fonction pour enregistrer les hyperparamètres et les métriques dans MLFlow
 def log_metrics_in_mlflow(run, epochs, batch_size, learning_rate, max_len, test_loss, test_accuracy, model_dir):
-    mlflow.log_param("epochs", epochs)
-    mlflow.log_param("batch_size", batch_size)
-    mlflow.log_param("learning_rate", learning_rate)
-    mlflow.log_param("max_len", max_len)
-    mlflow.log_metric("test_loss", test_loss)
-    mlflow.log_metric("test_accuracy", test_accuracy)
-    
-    mlflow.pyfunc.log_model(
-        artifact_path="model",
-        python_model=None,
-        conda_env=None,
-        code_path=None,
-        loader_module="transformers",
-        data_path=model_dir
-    )
+    if not os.getenv("IGNORE_MLFLOW"):
+        mlflow.log_param("epochs", epochs)
+        mlflow.log_param("batch_size", batch_size)
+        mlflow.log_param("learning_rate", learning_rate)
+        mlflow.log_param("max_len", max_len)
+        mlflow.log_metric("test_loss", test_loss)
+        mlflow.log_metric("test_accuracy", test_accuracy)
+
+        mlflow.pyfunc.log_model(
+            artifact_path="model",
+            python_model=None,
+            conda_env=None,
+            code_path=None,
+            loader_module="transformers",
+            data_path=model_dir
+        )
 
 
 # Fonction pour afficher et sauvegarder les graphes de performance
