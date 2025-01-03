@@ -6,9 +6,6 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 import mlflow
 import mlflow.tensorflow
-import mlflow.pyfunc
-import matplotlib.pyplot as plt
-from unittest.mock import patch
 import os
 
 # Configuration de MLFlow
