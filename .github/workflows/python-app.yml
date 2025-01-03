@@ -29,9 +29,9 @@ jobs:
       - run: |
           python -m venv venv
           source venv/bin/activate  # Activer l'environnement virtuel
-          pip install -r requirements.txt  # Réinstaller les dépendances dans l'environnement virtuel
+          pip install autopep8  # Installer autopep8 si ce n'est pas dans requirements.txt
+          pip install -r requirements.txt  # Réinstaller les dépendances
       - run: |
-          # Vérification du formatage avec autopep8 et black
           autopep8 --in-place --aggressive $(find . -name "*.py")
           black --line-length 79 $(find . -name "*.py")
       - run: |
