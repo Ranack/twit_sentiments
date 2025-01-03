@@ -8,6 +8,7 @@ import mlflow
 import mlflow.tensorflow
 import mlflow.pyfunc
 import matplotlib.pyplot as plt
+from unittest.mock import patch
 import os
 
 # Configuration de MLFlow
@@ -55,7 +56,8 @@ def encode_texts(texts, tokenizer, max_len):
 # Fonction pour préparer les datasets TensorFlow
 def prepare_datasets(train_encodings, test_encodings, y_train, y_test, batch_size):
     print("Préparation des datasets TensorFlow...")
-    train_dataset = tf.data.Dataset.from_tensor_slices((dict(train_encodings), y_train)).shuffle(10000).batch(batch_size)
+    train_dataset = tf.data.Dataset.from_tensor_slices((dict(train_encodings), y_train)) \
+        .shuffle(10000).batch(batch_size)
     test_dataset = tf.data.Dataset.from_tensor_slices((dict(test_encodings), y_test)).batch(batch_size)
     return train_dataset, test_dataset
 
