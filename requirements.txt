@@ -9,3 +9,4 @@ mlflow
 pytest>=7.0
 httpx
 flake8
+tf-keras
