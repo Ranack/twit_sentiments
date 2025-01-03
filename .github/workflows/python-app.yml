@@ -33,17 +33,20 @@ jobs:
         run: |
           nohup python API.py > api_logs.txt 2>&1 &
           echo "API lancée, en attente de sa disponibilité..."
-          for i in {1..30}; do  # Essayer pendant 30 secondes maximum
+          for i in {1..60}; do  # Essayer pendant 60 secondes maximum
             if curl -s http://127.0.0.1:8000; then  # Vérifie sur le port 8000
               echo "API disponible !"
               break
             fi
             sleep 1  # Attente entre chaque tentative
           done
-          if [ $i -eq 30 ]; then
-            echo "L'API n'est pas disponible après 30 secondes. Échec."
+          if [ $i -eq 60 ]; then
+            echo "L'API n'est pas disponible après 60 secondes. Échec."
             exit 1
-          fi
+
+      - name: Afficher les logs de l'API en cas d'échec
+        if: failure()
+        run: cat api_logs.txt
 
       - name: Run tests
         run: pytest test_api.py
