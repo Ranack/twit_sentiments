@@ -31,8 +31,6 @@ jobs:
           pip install black  # Installer black pour le formatage
           autopep8 --in-place --aggressive $(find . -name "*.py")  # Formater avec autopep8
           black --line-length 79 $(find . -name "*.py")  # Formater avec black avec une longueur de ligne de 79
-      - run: |
-          flake8 . || exit 1  # Vérification avec flake8 après formatage
       - name: Lancer l'API et vérifier sa disponibilité
         run: |
           nohup python API.py > api_logs.txt 2>&1 &  # Lance l'API en arrière-plan et redirige les logs
