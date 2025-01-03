@@ -37,8 +37,8 @@ jobs:
         run: |
           nohup python API.py > api_logs.txt 2>&1 &  # Lance l'API en arrière-plan et redirige les logs
           echo "API lancée, en attente de sa disponibilité..."
-          for i in {1..20}; do  # Essayer pendant 20 try
-            sleep 10  # Attendre 10 seconde entre chaque tentative
+          for i in {1..20}; do  # Essayer pendant 20 tentatives
+            sleep 10  # Attendre 10 secondes entre chaque tentative
             curl -s http://127.0.0.1:5001 || echo "API non encore disponible, tentative $i"
           done
       - run: |
