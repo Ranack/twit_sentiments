@@ -36,23 +36,22 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ ! -f requirements-dev.txt ]; then pip install pytest httpx tf-keras; fi
 
-      - name: Start FastAPI server without nohup
+      - name: Start FastAPI server with logging
         run: |
-          uvicorn API:app --host 0.0.0.0 --port 8000 &  # Démarre le serveur en mode interactif
+          uvicorn API:app --host 0.0.0.0 --port 8000 --log-level debug --log-config /dev/stdout &  # Ajout des logs à stdout
 
       - name: Wait for the server to start
         run: |
           sleep 60  # Attendre 60 secondes pour que le serveur soit prêt
 
-      - name: Test if API is running
+      - name: Test if API is running (with verbose output)
         run: |
-          curl -X GET http://localhost:8000  # Vérifie si le serveur répond
-        continue-on-error: true  # Permet de continuer même si le test échoue, pour afficher les logs
+          curl -v -X GET http://localhost:8000  # Affiche des détails sur la connexion, même en cas d'erreur
 
       - name: Display FastAPI logs
         run: |
           ps aux | grep uvicorn  # Affiche les processus en cours, y compris ceux liés à uvicorn
-          tail -n 10 /tmp/uvicorn.log  # Affiche les derniers logs pour aider à diagnostiquer
+          tail -n 10 /dev/stdout  # Affiche les derniers logs (stdout redirigés)
 
       - name: Run tests
         run: |
