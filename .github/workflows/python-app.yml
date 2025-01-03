@@ -36,6 +36,11 @@ jobs:
       - run: |
           black $(find . -name "*.py")  # Formate uniquement les fichiers Python avec black
           
+      # Configurer flake8 pour autoriser jusqu'à 88 caractères par ligne
+      - run: |
+          echo "[flake8]" > .flake8
+          echo "max-line-length = 88" >> .flake8
+          
       # Exécuter flake8 pour vérifier les erreurs de style
       - run: |
           echo "Running flake8..."
