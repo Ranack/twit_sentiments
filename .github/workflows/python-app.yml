@@ -28,23 +28,33 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install tensorflow-cpu
 
-      - name: Start the API
+      - name: Inspect model files
+        run: |
+          echo "Vérification des fichiers du modèle..."
+          ls -lh ./fine_tuned_roberta
+          for file in ./fine_tuned_roberta/*; do
+            echo "Contenu de $file :"
+            cat "$file"
+          done
+
+      - name: Launch API
         run: |
           nohup python API.py > api_logs.txt 2>&1 &
           echo "API lancée, en attente de sa disponibilité..."
-          for i in {1..60}; do  # Essayer pendant 60 secondes maximum
-            if curl -s http://127.0.0.1:8000; then  # Vérifie sur le port 8000
+          for i in {1..60}; do
+            if curl -s http://127.0.0.1:8000; then
               echo "API disponible !"
               break
             fi
-            sleep 1  # Attente entre chaque tentative
+            sleep 1
           done
           if [ $i -eq 60 ]; then
             echo "L'API n'est pas disponible après 60 secondes. Échec."
             exit 1
 
-      - name: Afficher les logs de l'API en cas d'échec
+      - name: Display API logs on failure
         if: failure()
         run: cat api_logs.txt
 
