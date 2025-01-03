@@ -1,4 +1,4 @@
-name: Application Python
+name: Python application
 
 on:
   push:
@@ -19,47 +19,27 @@ jobs:
         python-version: ["3.8", "3.9", "3.10"]
 
     steps:
-      # Récupération du code
       - uses: actions/checkout@v4
-      
-      # Configuration de Python
       - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-
-      # Installation des dépendances
       - run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install flake8 autopep8 black  # Installer les paquets nécessaires pour les linters
-
-      # Démarrer l'API si nécessaire (assurez-vous que votre API est prête à être lancée)
-      - name: Lancer l'API
-        run: |
-          nohup python API.py &  # Lance API en arrière-plan 
-
-      # Attendre que l'API soit complètement lancée
-      - name: Attendre que l'API soit prête
-        run: |
-          for i in {1..10}; do
-            if curl --silent --fail http://127.0.0.1:5001; then
-              echo "L'API est en ligne et prête !"
-              break
-            else
-              echo "En attente du démarrage de l'API..."
-              sleep 5
-            fi
-          done
-
-      # Formatage du code avec autopep8 et black
+          pip install flake8 autopep8 black  # Installe les dépendances nécessaires pour flake8, autopep8 et black
       - run: |
-          autopep8 --in-place --aggressive $(find . -name "*.py")
-          black $(find . -name "*.py")
-
-      # Vérification du code avec flake8
+          autopep8 --in-place --aggressive $(find . -name "*.py")  # Formate uniquement les fichiers Python
+      - run: |
+          black $(find . -name "*.py")  # Formate uniquement les fichiers Python avec black
       - run: |
           flake8 . || exit 1  # Exécuter flake8 et échouer si des erreurs sont détectées
-
-      # Exécution des tests
+      - name: Lancer l'API et vérifier sa disponibilité
+        run: |
+          nohup python API.py > api_logs.txt 2>&1 &  # Lancer l'API en arrière-plan et rediriger les logs
+          echo "API lancée, en attente de sa disponibilité..."
+          for i in {1..20}; do  # Essayer pendant 20 secondes
+            sleep 1  # Attendre 1 seconde entre chaque tentative
+            curl -s http://127.0.0.1:5001 || echo "API non encore disponible, tentative $i"
+          done
       - run: |
-          pytest test_api.py  # Exécuter les tests après avoir vérifié que l'API est prête
+          pytest test_api.py  # Exécute les tests unitaires du fichier test_api.py
