@@ -36,7 +36,7 @@ jobs:
       # Démarrer l'API si nécessaire (assurez-vous que votre API est prête à être lancée)
       - name: Lancer l'API
         run: |
-          nohup python app.py &  # Lance ton API en arrière-plan (assure-toi que c'est bien app.py ou l'entry point de ton API)
+          nohup python API.py &  # Lance API en arrière-plan 
 
       # Attendre que l'API soit complètement lancée
       - name: Attendre que l'API soit prête
