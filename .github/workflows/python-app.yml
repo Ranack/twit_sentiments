@@ -28,11 +28,14 @@ jobs:
           pip install -r requirements.txt
           pip install flake8 autopep8 black  # Installe flake8, autopep8 et black
       - run: |
-          # Vérification du code avec black sans modification
-          black --line-length 79 --check $(find . -name "*.py") || true  # Vérifie sans échouer si du formatage est nécessaire
-          autopep8 --in-place --aggressive $(find . -name "*.py")  # Formate avec autopep8
-          black --line-length 79 $(find . -name "*.py")  # Formate avec black et limite à 79 caractères par ligne
+          # Vérification du formatage avec black (sans modification)
+          black --line-length 79 --check $(find . -name "*.py")  # Vérifie si le formatage est correct, sans modification
       - run: |
+          # Formater les fichiers Python si nécessaire
+          autopep8 --in-place --aggressive $(find . -name "*.py")  # Formate avec autopep8
+          black --line-length 79 $(find . -name "*.py")  # Formate avec black avec une longueur de ligne de 79 caractères
+      - run: |
+          # Exécution de flake8 pour vérifier la qualité du code
           flake8 . || exit 1  # Exécuter flake8 après formatage et échouer si des erreurs sont détectées
       - name: Lancer l'API et vérifier sa disponibilité
         run: |
