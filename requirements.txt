@@ -1,7 +1,7 @@
 fastapi
 uvicorn
-transformers
-tensorflow
+transformers>=4.0,<5.0
+tensorflow>=2.4,<3.0
 pandas
 scikit-learn
 matplotlib
