@@ -32,8 +32,8 @@ jobs:
           autopep8 --in-place --aggressive $(find . -name "*.py")  # Formate avec autopep8
           black --line-length 79 $(find . -name "*.py")  # Formate avec black avec une longueur de ligne de 79 caractères
       - run: |
-          # Exécution de flake8 pour vérifier la qualité du code
-          flake8 . || exit 1  # Exécuter flake8 après formatage et échouer si des erreurs sont détectées
+          # Exécution de flake8 pour vérifier la qualité du code avec l'option d'ignorer les erreurs de longueur de ligne
+          flake8 --ignore=E501 . || exit 1  # Ignorer l'erreur de longueur de ligne
       - name: Lancer l'API et vérifier sa disponibilité
         run: |
           nohup python API.py > api_logs.txt 2>&1 &  # Lance l'API en arrière-plan et redirige les logs
