@@ -7,10 +7,10 @@ WORKDIR /models
 RUN apk add --no-cache bash
 
 # Copier les modèles dans l'image temporaire
-COPY best_model.keras/ ./best_model.keras/
+COPY fine_tuned_roberta/ ./fine_tuned_roberta/
 
 # Compresser les modèles
-RUN tar -czvf best_model.keras.tar.gz best_model.keras
+RUN tar -czvf fine_tuned_roberta.tar.gz fine_tuned_roberta
 
 # Étape 2 : Image principale pour l'application
 FROM python:3.9-alpine
@@ -31,12 +31,12 @@ RUN pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir -r re
 COPY . .
 
 # Récupérer les modèles compressés depuis l'étape précédente
-COPY --from=compressor /models/best_model.keras.tar.gz ./models/
+COPY --from=compressor /models/fine_tuned_roberta.tar.gz ./models/
 
 # Décompresser les modèles dans le conteneur final
-RUN mkdir -p ./models/best_model.keras && \
-    tar -xzvf ./models/best_model.keras.tar.gz -C ./models/ && \
-    rm ./models/best_model.keras.tar.gz
+RUN mkdir -p ./models/fine_tuned_roberta && \
+    tar -xzvf ./models/fine_tuned_roberta.tar.gz -C ./models/ && \
+    rm ./models/fine_tuned_roberta.tar.gz
 
 # Exposer le port et démarrer l'application
 EXPOSE 8000

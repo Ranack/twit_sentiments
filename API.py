@@ -64,12 +64,17 @@ def prepare_datasets(train_encodings, test_encodings, y_train, y_test, batch_siz
 
 # Fonction pour charger le modèle RoBERTa
 def load_model():
-    print("Chargement du modèle RoBERTa...")
-    model = TFRobertaForSequenceClassification.from_pretrained("roberta-base", num_labels=2)
-
-    # Geler les couches inférieures
-    for layer in model.roberta.encoder.layer[:10]:
-        layer.trainable = False
+    model_dir = "./fine_tuned_roberta"
+    
+    if not os.path.exists(model_dir):
+        print(f"Le modèle n'a pas été trouvé à l'emplacement {model_dir}. Téléchargement du modèle...")
+        model = TFRobertaForSequenceClassification.from_pretrained("roberta-base", num_labels=2)
+        tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
+        model.save_pretrained(model_dir)
+        tokenizer.save_pretrained(model_dir)
+    else:
+        print(f"Chargement du modèle depuis {model_dir}...")
+        model = TFRobertaForSequenceClassification.from_pretrained(model_dir)
     
     return model
 
