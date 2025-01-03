@@ -35,13 +35,13 @@ jobs:
           nohup mlflow server --host 0.0.0.0 --port 5001 > mlflow.log 2>&1 &  # Démarre le serveur MLflow en arrière-plan
           
       - run: |
-          autopep8 --in-place --aggressive $(find . -name "*.py")  # Formate uniquement les fichiers Python
+          autopep8 --in-place --aggressive --max-line-length 79 $(find . -name "*.py")  # Applique autopep8 avec limite de 79 caractères
           
       - run: |
-          black $(find . -name "*.py")  # Formate uniquement les fichiers Python avec black
+          black --line-length 79 $(find . -name "*.py")  # Formate avec black et applique une limite de 79 caractères
           
       - run: |
-          flake8 . || exit 1  # Exécuter flake8 et échouer si des erreurs sont détectées
+          flake8 . || exit 1  # Exécute flake8 et échoue si des erreurs sont détectées
           
       - run: |
           pytest test_api.py  # Exécute les tests unitaires du fichier test_api.py
