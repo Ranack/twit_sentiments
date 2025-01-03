@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
 import tensorflow as tf
+import uvicorn
 
 # Initialisation de l'API FastAPI
 app = FastAPI()
@@ -46,3 +47,7 @@ def predict(request: PredictionRequest):
 @app.get("/")
 def read_root():
     return {"message": "API de classification de texte avec RoBERTa fine-tuné"}
+
+# Démarrage du serveur FastAPI sur le port 8080
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8080)  # Utiliser le port 8080
