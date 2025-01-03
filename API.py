@@ -1,15 +1,16 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
-import tensorflow as tf
-from sklearn.model_selection import train_test_split
-import pandas as pd
+import os
 import mlflow
 import mlflow.tensorflow
-import os
+import tensorflow as tf
+import pandas as pd
+import matplotlib.pyplot as plt
+from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
+from sklearn.model_selection import train_test_split
+from fastapi import FastAPI
+from pydantic import BaseModel
 
 # Configuration de MLFlow
-if not os.getenv("IGNORE_MLFLOW"):  # N'initialisez MLFlow que si l'environnement ne demande pas son ignoré
+if not os.getenv("IGNORE_MLFLOW"):  
     mlflow.set_tracking_uri("http://127.0.0.1:5001")
     mlflow.set_experiment("Fine_tuning_RoBERTa_Optimized")
 
@@ -23,7 +24,7 @@ def load_and_preprocess_data(file_path):
     print("Prétraitement des données...")
     data = data[['sentiment', 'text']]
     data['sentiment'] = data['sentiment'].replace({0: 0, 4: 1})
-    data = data.sample(frac=0.8, random_state=42)  # Échantillonner 80% des données pour accélérer
+    data = data.sample(frac=0.8, random_state=42)  
     X = data['text'].values
     y = data['sentiment'].values
 
@@ -173,7 +174,7 @@ def predict(request: PredictionRequest):
     inputs = tokenizer(
         request.text,
         return_tensors="tf",
-        max_length=64,  # Utilisation de la même longueur que pendant l'entraînement
+        max_length=64,  
         padding="max_length",
         truncation=True
     )
