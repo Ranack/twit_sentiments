@@ -1,4 +1,3 @@
-import pytest
 from fastapi.testclient import TestClient
 from API import app  # Assurez-vous que le fichier principal s'appelle API.py et contient l'application FastAPI
 
@@ -9,7 +8,9 @@ client = TestClient(app)
 def test_root_endpoint():
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"message": "API de classification de texte avec RoBERTa fine-tuné"}
+    assert response.json() == {
+        "message": "API de classification de texte avec RoBERTa fine-tuné"
+    }
 
 # Test 2 : Vérifier que l'API retourne une prédiction valide pour une requête correcte
 def test_predict_valid_text():
@@ -25,7 +26,9 @@ def test_predict_valid_text():
 
 # Test 3 : Vérifier une prédiction négative
 def test_predict_negative_text():
-    payload = {"text": "I hate this app. It is the worst experience I've ever had."}
+    payload = {
+        "text": "I hate this app. It is the worst experience I've ever had."
+    }
     response = client.post("/predict/", json=payload)
     assert response.status_code == 200
     data = response.json()
