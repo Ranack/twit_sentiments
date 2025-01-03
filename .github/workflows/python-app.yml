@@ -38,7 +38,7 @@ jobs:
 
       - name: Start FastAPI server with logging
         run: |
-          uvicorn API:app --host 0.0.0.0 --port 8000 --log-level debug --log-config /dev/stdout &  # Ajout des logs à stdout
+          nohup uvicorn API:app --host 0.0.0.0 --port 8000 --log-level debug --log-config /dev/stdout &  # Ajout des logs à stdout
 
       - name: Wait for the server to start
         run: |
