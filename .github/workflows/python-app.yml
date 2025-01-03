@@ -27,15 +27,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - run: |
-          python -m venv venv
-          source venv/bin/activate  # Activer l'environnement virtuel
-          pip install autopep8  # Installer autopep8 si ce n'est pas dans requirements.txt
-          pip install -r requirements.txt  # Réinstaller les dépendances
+          pip install --upgrade autopep8 pycodestyle  # Mettre à jour autopep8 et pycodestyle
+          autopep8 --in-place --aggressive $(find . -name "*.py")  # Formater avec autopep8
+          black --line-length 79 $(find . -name "*.py")  # Formater avec black
       - run: |
-          autopep8 --in-place --aggressive $(find . -name "*.py")
-          black --line-length 79 $(find . -name "*.py")
-      - run: |
-          flake8 . || exit 1
+          flake8 . || exit 1  # Vérification avec flake8 après formatage
       - name: Lancer l'API et vérifier sa disponibilité
         run: |
           nohup python API.py > api_logs.txt 2>&1 &  # Lance l'API en arrière-plan et redirige les logs
