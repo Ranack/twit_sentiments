@@ -26,16 +26,16 @@ jobs:
       - run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install flake8 autopep8 black  # Installe les dépendances nécessaires pour flake8, autopep8 et black
+          pip install flake8 autopep8 black  # Installe flake8, autopep8 et black
       - run: |
-          autopep8 --in-place --aggressive $(find . -name "*.py")  # Formate uniquement les fichiers Python
+          # Formater le code avec autopep8 et black pour corriger les erreurs de style avant flake8
+          autopep8 --in-place --aggressive $(find . -name "*.py")  # Formate avec autopep8
+          black --line-length 79 $(find . -name "*.py")  # Formate avec black et limite à 79 caractères par ligne
       - run: |
-          black $(find . -name "*.py")  # Formate uniquement les fichiers Python avec black
-      - run: |
-          flake8 . || exit 1  # Exécuter flake8 et échouer si des erreurs sont détectées
+          flake8 . || exit 1  # Exécuter flake8 après formatage et échouer si des erreurs sont détectées
       - name: Lancer l'API et vérifier sa disponibilité
         run: |
-          nohup python API.py > api_logs.txt 2>&1 &  # Lancer l'API en arrière-plan et rediriger les logs
+          nohup python API.py > api_logs.txt 2>&1 &  # Lance l'API en arrière-plan et redirige les logs
           echo "API lancée, en attente de sa disponibilité..."
           for i in {1..20}; do  # Essayer pendant 20 secondes
             sleep 1  # Attendre 1 seconde entre chaque tentative
