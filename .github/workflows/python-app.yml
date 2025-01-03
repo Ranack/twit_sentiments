@@ -26,6 +26,11 @@ jobs:
       - run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install flake8 autopep8 black  # Installe les dépendances nécessaires pour flake8, autopep8 et black
+      - run: |
+          autopep8 --in-place --aggressive .  # Formate automatiquement le code avec autopep8
+      - run: |
+          black .  # Formate automatiquement le code avec black
       - run: |
           flake8 . || exit 1  # Exécute flake8 et échoue si des erreurs sont détectées
       - run: |
