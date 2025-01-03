@@ -3,14 +3,25 @@ from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import logging
-
+import os
 
 # Initialisation du logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("TextClassificationAPI")
 
-# Chargement global du modèle et du tokenizer pour éviter de les recharger à chaque requête
+# Définir le répertoire du modèle
 MODEL_DIR = "./fine_tuned_roberta"
+
+# Vérification que le répertoire et les fichiers nécessaires existent
+if not os.path.exists(MODEL_DIR):
+    raise RuntimeError(f"Le répertoire {MODEL_DIR} est manquant.")
+
+required_files = ['config.json', 'pytorch_model.bin', 'tokenizer_config.json', 'vocab.json', 'special_tokens_map.json']
+for file in required_files:
+    if not os.path.exists(os.path.join(MODEL_DIR, file)):
+        raise RuntimeError(f"Fichier manquant : {file} dans {MODEL_DIR}")
+
+# Chargement du modèle et du tokenizer
 logger.info(f"Chargement du modèle et du tokenizer depuis {MODEL_DIR}...")
 try:
     tokenizer = RobertaTokenizer.from_pretrained(MODEL_DIR)
@@ -18,7 +29,7 @@ try:
     logger.info("Modèle et tokenizer chargés avec succès.")
 except Exception as e:
     logger.error(f"Erreur lors du chargement du modèle : {str(e)}")
-    raise RuntimeError("Impossible de charger le modèle ou le tokenizer.")
+    raise RuntimeError(f"Impossible de charger le modèle ou le tokenizer. Détails : {str(e)}")
 
 # Initialisation de l'application FastAPI
 app = FastAPI()
