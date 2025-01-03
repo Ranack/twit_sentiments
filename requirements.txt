@@ -11,3 +11,4 @@ httpx
 flake8
 tf-keras
 autopep8==1.6.0
+tensorflow-cpu>=2.10.0
