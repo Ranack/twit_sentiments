@@ -5,7 +5,7 @@ import requests
 API_URL = "http://127.0.0.1:8000/predict/"
 
 # Interface Streamlit
-st.title("Test de Classification de Texte avec Roberta")
+st.title("Test de Classification de Texte avec RoBERTa Fine-Tuné")
 
 # Zone de texte pour saisir le texte à prédire
 text_input = st.text_area("Entrez le texte à analyser", "")

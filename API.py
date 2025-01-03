@@ -4,18 +4,14 @@ from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 import pandas as pd
-import os
 import mlflow
 import mlflow.tensorflow
 import mlflow.pyfunc
 import matplotlib.pyplot as plt
 
-# Configuration conditionnelle de MLflow
-if not os.getenv("IGNORE_MLFLOW"):
-    mlflow.set_tracking_uri("http://127.0.0.1:5001")
-    mlflow.set_experiment("Fine_tuning_RoBERTa_Optimized")
-else:
-    print("MLflow est désactivé.")
+# Configuration de MLFlow
+mlflow.set_tracking_uri("http://127.0.0.1:5001")
+mlflow.set_experiment("Fine_tuning_RoBERTa_Optimized")
 
 
 # Fonction pour charger et préparer les données
@@ -37,23 +33,10 @@ def load_and_preprocess_data(file_path):
     return X_train, X_test, y_train, y_test
 
 
-# Fonction pour charger le tokenizer et le modèle
-def load_model_and_tokenizer():
-    model_dir = './models/fine_tuned_roberta'  # Répertoire où le modèle est stocké
-    
-    # Vérification de l'existence du modèle et du tokenizer
-    if not os.path.exists(model_dir):
-        print(f"Le modèle n'a pas été trouvé à l'emplacement {model_dir}. Téléchargement du modèle...")
-        model = TFRobertaForSequenceClassification.from_pretrained("roberta-base", num_labels=2)
-        tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
-        model.save_pretrained(model_dir)
-        tokenizer.save_pretrained(model_dir)
-    else:
-        print(f"Chargement du modèle et du tokenizer depuis {model_dir}...")
-        model = TFRobertaForSequenceClassification.from_pretrained(model_dir)
-        tokenizer = RobertaTokenizer.from_pretrained(model_dir)
-    
-    return model, tokenizer
+# Fonction pour charger le tokenizer RoBERTa
+def load_tokenizer():
+    print("Chargement du tokenizer RoBERTa...")
+    return RobertaTokenizer.from_pretrained("roberta-base")
 
 
 # Fonction pour encoder les textes
@@ -73,6 +56,18 @@ def prepare_datasets(train_encodings, test_encodings, y_train, y_test, batch_siz
     train_dataset = tf.data.Dataset.from_tensor_slices((dict(train_encodings), y_train)).shuffle(10000).batch(batch_size)
     test_dataset = tf.data.Dataset.from_tensor_slices((dict(test_encodings), y_test)).batch(batch_size)
     return train_dataset, test_dataset
+
+
+# Fonction pour charger le modèle RoBERTa
+def load_model():
+    print("Chargement du modèle RoBERTa...")
+    model = TFRobertaForSequenceClassification.from_pretrained("roberta-base", num_labels=2)
+
+    # Geler les couches inférieures
+    for layer in model.roberta.encoder.layer[:10]:
+        layer.trainable = False
+    
+    return model
 
 
 # Fonction pour compiler le modèle
@@ -168,8 +163,9 @@ def read_root():
 
 @app.post("/predict/")
 def predict(request: PredictionRequest):
-    # Charger le modèle et le tokenizer en utilisant la nouvelle fonction
-    model, tokenizer = load_model_and_tokenizer()
+    # Charger le tokenizer et le modèle
+    tokenizer = RobertaTokenizer.from_pretrained("./fine_tuned_roberta")
+    model = TFRobertaForSequenceClassification.from_pretrained("./fine_tuned_roberta")
 
     # Tokenisation de l'entrée
     inputs = tokenizer(
@@ -198,10 +194,7 @@ def predict(request: PredictionRequest):
 def main():
     file_path = 'training.1600000.processed.noemoticon.csv'
     X_train, X_test, y_train, y_test = load_and_preprocess_data(file_path)
-    
-    # Charger le tokenizer et le modèle fine-tuné
-    model, tokenizer = load_model_and_tokenizer()
-    
+    tokenizer = load_tokenizer()
     max_len = 64
     train_encodings = encode_texts(X_train, tokenizer, max_len)
     test_encodings = encode_texts(X_test, tokenizer, max_len)
@@ -209,23 +202,18 @@ def main():
     batch_size = 16
     train_dataset, test_dataset = prepare_datasets(train_encodings, test_encodings, y_train, y_test, batch_size)
     
+    model = load_model()
     epochs = 4
     learning_rate = 2e-4
     compile_model(model, learning_rate)
     
-    if not os.getenv("IGNORE_MLFLOW"):
-        with mlflow.start_run(run_name="Fine-tuning_RoBERTa_Optimized") as run:
-            history = train_model(model, train_dataset, test_dataset, epochs)
-            test_loss, test_accuracy = evaluate_model(model, test_dataset)
-            model_dir = "./models/fine_tuned_roberta"
-            save_model_and_tokenizer(model, tokenizer, model_dir)
-            log_metrics_in_mlflow(run, epochs, batch_size, learning_rate, max_len, test_loss, test_accuracy, model_dir)
-            plot_and_save_graphs(history)
-    else:
-        print("Entraînement sans MLflow.")
+    with mlflow.start_run(run_name="Fine-tuning_RoBERTa_Optimized") as run:
         history = train_model(model, train_dataset, test_dataset, epochs)
         test_loss, test_accuracy = evaluate_model(model, test_dataset)
-        print(f"Test Loss: {test_loss}, Test Accuracy: {test_accuracy}")
+        model_dir = "./fine_tuned_roberta"
+        save_model_and_tokenizer(model, tokenizer, model_dir)
+        log_metrics_in_mlflow(run, epochs, batch_size, learning_rate, max_len, test_loss, test_accuracy, model_dir)
+        plot_and_save_graphs(history)
 
 
 if __name__ == "__main__":

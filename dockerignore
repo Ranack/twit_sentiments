@@ -1,6 +1,0 @@
-fine_tuned_roberta/  # Exclure les modèles non compressés
-__pycache__/
-*.pyc
-*.pyo
-*.log
-.DS_Store
