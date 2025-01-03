@@ -26,26 +26,20 @@ jobs:
       - run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install flake8 autopep8 black  # Installe les dépendances nécessaires
-          
-      # Formater le code avec autopep8
+          pip install flake8 autopep8 black  # Installe flake8, autopep8 et black
       - run: |
-          autopep8 --in-place --aggressive $(find . -name "*.py")  # Formate uniquement les fichiers Python
-          
-      # Formater le code avec black
+          # Formater le code avec autopep8 et black pour corriger les erreurs de style avant flake8
+          autopep8 --in-place --aggressive $(find . -name "*.py")  # Formate avec autopep8
+          black --line-length 79 $(find . -name "*.py")  # Formate avec black et limite à 79 caractères par ligne
       - run: |
-          black $(find . -name "*.py")  # Formate uniquement les fichiers Python avec black
-          
-      # Configurer flake8 pour autoriser jusqu'à 88 caractères par ligne
-      - run: |
-          echo "[flake8]" > .flake8
-          echo "max-line-length = 88" >> .flake8
-          
-      # Exécuter flake8 pour vérifier les erreurs de style
-      - run: |
-          echo "Running flake8..."
-          flake8 . || exit 1  # Exécute flake8 et échoue si des erreurs sont détectées
-          
-      # Exécuter les tests unitaires avec pytest
+          flake8 . || exit 1  # Exécuter flake8 après formatage et échouer si des erreurs sont détectées
+      - name: Lancer l'API et vérifier sa disponibilité
+        run: |
+          nohup python API.py > api_logs.txt 2>&1 &  # Lance l'API en arrière-plan et redirige les logs
+          echo "API lancée, en attente de sa disponibilité..."
+          for i in {1..20}; do  # Essayer pendant 20 try
+            sleep 10  # Attendre 10 seconde entre chaque tentative
+            curl -s http://127.0.0.1:5001 || echo "API non encore disponible, tentative $i"
+          done
       - run: |
           pytest test_api.py  # Exécute les tests unitaires du fichier test_api.py
