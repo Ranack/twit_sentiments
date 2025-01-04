@@ -13,8 +13,14 @@ class PredictionRequest(BaseModel):
     text: str
 
 # Charger le tokenizer et le modèle une seule fois au démarrage de l'API
-tokenizer = RobertaTokenizer.from_pretrained("./fine_tuned_roberta")
-model = TFRobertaForSequenceClassification.from_pretrained("./fine_tuned_roberta")
+try:
+    tokenizer = RobertaTokenizer.from_pretrained("./fine_tuned_roberta")
+    model = TFRobertaForSequenceClassification.from_pretrained("./fine_tuned_roberta")
+    logging.debug("Model and tokenizer loaded successfully.")
+except Exception as e:
+    logging.error(f"Error loading model: {e}")
+    raise HTTPException(status_code=500, detail=f"Error loading model: {e}")
+
 
 @app.post("/predict/")
 def predict(request: PredictionRequest):
