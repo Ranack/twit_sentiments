@@ -29,7 +29,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install tensorflow-cpu
-          pip install uvicorn fastapi
+          pip install fastapi uvicorn mlflow
 
       - name: Validate model files
         run: |
@@ -43,7 +43,22 @@ jobs:
             fi
           done
 
-      - name: Launch API with FastAPI
+      - name: Launch MLFlow Server
+        run: |
+          nohup mlflow server --host 0.0.0.0 --port 5001 > mlflow_logs.txt 2>&1 &
+          echo "MLFlow server lancé, en attente de sa disponibilité..."
+          for i in {1..60}; do
+            if curl -s http://127.0.0.1:5001; then
+              echo "MLFlow disponible !"
+              break
+            fi
+            sleep 1
+          done
+          if [ $i -eq 60 ]; then
+            echo "MLFlow n'est pas disponible après 60 secondes. Échec."
+            exit 1
+
+      - name: Launch API
         run: |
           nohup uvicorn API:app --host 0.0.0.0 --port 8080 > api_logs.txt 2>&1 &
           echo "API lancée, en attente de sa disponibilité..."
@@ -58,7 +73,7 @@ jobs:
             echo "L'API n'est pas disponible après 60 secondes. Échec."
             exit 1
 
-      - name: Display API logs on failure
+      - name: Display logs if API fails
         if: failure()
         run: cat api_logs.txt
 
