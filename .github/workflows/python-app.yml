@@ -46,7 +46,7 @@ jobs:
     - name: Run Unit Tests
       run: |
         echo "Running unit tests..."
-        pytest tests/test_api.py --maxfail=1 --disable-warnings -q
+        pytest test_api.py --maxfail=1 --disable-warnings -q
         # Assurez-vous que vous avez un fichier de test (ex: tests/test_api.py) avec vos tests unitaires
 
     - name: Display API logs
