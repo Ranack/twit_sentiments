@@ -1,4 +1,4 @@
-name: Run API Tests and Deploy
+name: Run API Tests
 
 on: 
   push:
@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  api-tests-and-deploy:
+  api-tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,18 +33,25 @@ jobs:
         echo "Waiting for MLFlow..."
         while ! curl -s http://127.0.0.1:5001; do 
             echo "Waiting for MLFlow to start..."
-            sleep 10
+            sleep 20  # Attente augmentée pour le démarrage
         done
         echo "MLFlow is ready"
         cat mlflow_logs.txt  # Afficher les logs de MLFlow pour débogage
 
     - name: Start API server
       run: |
-        nohup uvicorn API:app --host 0.0.0.0 --port 8080 > api_logs.txt 2>&1 &
+        nohup uvicorn API:app --host 0.0.0.0 --port 8080 --log-level debug > api_logs.txt 2>&1 &
         echo "Waiting for API..."
+        max_attempts=10
+        attempt=0
         while ! curl -s http://127.0.0.1:8080/predict/; do 
             echo "Waiting for API to start..."
-            sleep 10
+            sleep 20  # Attente augmentée pour le démarrage
+            attempt=$((attempt+1))
+            if [ $attempt -ge $max_attempts ]; then
+                echo "API failed to start after $max_attempts attempts"
+                exit 1
+            fi
         done
         echo "API is ready"
         cat api_logs.txt  # Afficher les logs de l'API pour débogage
@@ -53,19 +60,3 @@ jobs:
       run: |
         curl -s http://127.0.0.1:8080/predict/ -X POST -d '{"text": "I love this product!"}' -H "Content-Type: application/json"
         pytest --maxfail=1 --disable-warnings -q
-
-    # ------------- Partie Docker Hub -------------
-    - name: Build Docker image
-      run: |
-        docker build -t my-api-image .
-
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Push Docker image to Docker Hub
-      run: |
-        docker tag my-api-image ${{ secrets.DOCKER_USERNAME }}/my-api-image:latest
-        docker push ${{ secrets.DOCKER_USERNAME }}/my-api-image:latest
