@@ -11,56 +11,67 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
-    # Check out the repository
-    - name: Checkout code
+    - name: Check out repository
       uses: actions/checkout@v2
-    
-    # Set up Python environment
-    - name: Set up Python 3.x
+
+    # Installer les dépendances
+    - name: Set up Python 3.12
       uses: actions/setup-python@v2
       with:
-        python-version: '3.12'
+        python-version: 3.12
 
-    # Install dependencies
-    - name: Clean environment and install dependencies
+    - name: Install dependencies
       run: |
-        rm -rf .venv  # Nettoyage de l'environnement virtuel
-        python -m venv .venv  # Création d'un nouvel environnement virtuel
-        source .venv/bin/activate  # Activation de l'environnement virtuel
         pip install --upgrade pip
-        pip install -r requirements.txt  # Installation des dépendances du projet
+        pip install -r requirements.txt
 
-    # Start MLFlow server
-    - name: Start MLFlow server
+    # Lancer le serveur MLFlow
+    - name: Run MLFlow server
       run: |
-        nohup mlflow server --host 0.0.0.0 --port 5001 > mlflow_logs.txt 2>&1 &  # Démarrer MLFlow
-        echo "Waiting for MLFlow to be ready..."
-        until curl -s http://127.0.0.1:5001; do echo "Waiting for MLFlow..."; sleep 2; done  # Attendre que MLFlow soit prêt
+        nohup mlflow server --host 0.0.0.0 --port 5001 > mlflow_logs.txt 2>&1 &
 
-    # Start FastAPI server
-    - name: Start API server
+    # Attendre que MLFlow soit disponible
+    - name: Wait for MLFlow to be ready
       run: |
-        nohup uvicorn API:app --host 0.0.0.0 --port 8080 > api_logs.txt 2>&1 &  # Démarrer l'API FastAPI
-        echo "Waiting for API to be ready..."
-        until curl -s http://127.0.0.1:8080/predict/; do echo "Waiting for API..."; sleep 2; done  # Attendre que l'API soit prête
+        until curl -s http://127.0.0.1:5001; do
+          echo "Waiting for MLFlow..."
+          sleep 5
+        done
+        echo "MLFlow is available!"
 
-    # Display MLFlow logs for debugging
+    # Lancer l'API avec Uvicorn
+    - name: Run API server
+      run: |
+        nohup uvicorn API:app --host 0.0.0.0 --port 8080 > api_logs.txt 2>&1 &
+
+    # Attendre que l'API soit disponible
+    - name: Wait for API to be ready
+      run: |
+        until curl -s http://127.0.0.1:8080; do
+          echo "Waiting for API..."
+          sleep 5
+        done
+        echo "API is available!"
+
+    # Afficher les logs MLFlow pour débogage
     - name: Display MLFlow logs
-      run: cat mlflow_logs.txt || echo "Le fichier mlflow_logs.txt n'existe pas."
+      run: |
+        tail -n 50 mlflow_logs.txt || echo "Le fichier mlflow_logs.txt n'existe pas."
 
-    # Display API logs for debugging
+    # Afficher les logs API pour débogage
     - name: Display API logs
-      run: cat api_logs.txt || echo "Le fichier api_logs.txt n'existe pas."
+      run: |
+        tail -n 50 api_logs.txt || echo "Le fichier api_logs.txt n'existe pas."
 
-    # Run tests with pytest
+    # Lancer les tests
     - name: Run tests
       run: |
-        source .venv/bin/activate  # Activer l'environnement virtuel
-        pytest --maxfail=1 --disable-warnings -v  # Exécuter les tests en mode verbeux
+        pytest --maxfail=1 --disable-warnings -q
 
-    # Clean up job
-    - name: Clean up after tests
+    # Nettoyage des ressources si nécessaire
+    - name: Clean up
       run: |
-        kill $(lsof -t -i:5001)  # Arrêter le serveur MLFlow
-        kill $(lsof -t -i:8080)  # Arrêter le serveur FastAPI
+        pkill -f "mlflow"
+        pkill -f "uvicorn"
