@@ -5,13 +5,11 @@ def test_predict_valid_text():
     url = "http://127.0.0.1:8080/predict/"
     data = {"text": "I love this product!"}
 
-    # Affichage des données envoyées
-    print(f"Sending request with data: {data}")
-
     headers = {
-        'Content-Type': 'application/json'  # Assurer l'en-tête de contenu approprié
+        'Content-Type': 'application/json'  # Assurez-vous que le type de contenu est JSON
     }
 
+    # Envoi de la requête POST
     response = requests.post(url, json=data, headers=headers)
 
     # Afficher la réponse brute pour le débogage
@@ -22,7 +20,7 @@ def test_predict_valid_text():
 
 
 
-def test_predict_valid_text():
+def test_predict_valid_texti():
     url = "http://127.0.0.1:8080/predict/"
     data = {"text": "I love this product!"}
     
@@ -45,12 +43,14 @@ def test_predict_negative_text():
 def test_predict_empty_text():
     url = "http://127.0.0.1:8080/predict/"
     data = {"text": ""}
-    
+
     response = requests.post(url, json=data)
-    
+
     print(f"Response: {response.text}")  # Afficher la réponse brute pour le débogage
-    
+
+    # Vérification du code de statut
     assert response.status_code == 400, f"Expected 400, got {response.status_code} - {response.text}"
+
 
 def test_predict_special_characters():
     url = "http://127.0.0.1:8080/predict/"

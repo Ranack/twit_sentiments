@@ -2,6 +2,10 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import tensorflow as tf
 from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
+import logging
+
+# Configurer le logger
+logging.basicConfig(level=logging.DEBUG)
 
 app = FastAPI()
 
@@ -10,7 +14,11 @@ class PredictionRequest(BaseModel):
 
 @app.post("/predict/")
 def predict(request: PredictionRequest):
-    print(f"Received request: {request}")  # Log de la requête reçue
+    # Vérifier si le texte est vide avant de procéder
+    if not request.text.strip():  # Si le texte est vide ou composé d'espaces
+        raise HTTPException(status_code=400, detail="Text cannot be empty")
+
+    logging.debug(f"Received request: {request}")  # Log de la requête reçue
 
     try:
         # Charger le tokenizer et le modèle
@@ -26,7 +34,7 @@ def predict(request: PredictionRequest):
             truncation=True
         )
 
-        print(f"Tokenized inputs: {inputs}")  # Log des données tokenisées
+        logging.debug(f"Tokenized inputs: {inputs}")  # Log des données tokenisées
 
         # Effectuer la prédiction
         outputs = model(inputs)
@@ -40,11 +48,11 @@ def predict(request: PredictionRequest):
             "confidence": float(probabilities[predicted_label])
         }
 
-        print(f"Response: {response}")  # Log de la réponse
+        logging.debug(f"Response: {response}")  # Log de la réponse
 
         return response
     
     except Exception as e:
         # Log détaillé en cas d'erreur
-        print(f"Error occurred: {str(e)}")
+        logging.error(f"Error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")

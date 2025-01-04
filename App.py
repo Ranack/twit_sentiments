@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # Définir l'URL de votre API FastAPI en local
-API_URL = "http://127.0.0.1:8000/predict/"
+API_URL = "http://127.0.0.1:8080/predict/"
 
 # Interface Streamlit
 st.title("Test de Classification de Texte avec RoBERTa Fine-Tuné")
