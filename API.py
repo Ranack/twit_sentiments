@@ -1,66 +1,51 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
-import tensorflow as tf
 import os
+from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import uvicorn
 
-# Configuration du répertoire du modèle
-MODEL_DIR = "./fine_tuned_roberta"
+# Spécifie le chemin du modèle fine-tuné
+MODEL_DIR = os.path.abspath("./fine_tuned_roberta")
 
 # Vérification des fichiers nécessaires
-if not os.path.exists(MODEL_DIR):
-    raise FileNotFoundError(f"Le dossier {MODEL_DIR} est introuvable.")
-
-required_files = ["config.json", "vocab.json", "merges.txt", "tf_model.h5", "tokenizer_config.json"]
+required_files = ["config.json", "tf_model.h5", "tokenizer_config.json", "vocab.json"]
 for file in required_files:
-    if not os.path.exists(os.path.join(MODEL_DIR, file)):
-        raise FileNotFoundError(f"Le fichier {file} est introuvable dans {MODEL_DIR}.")
-
-# Initialisation de l'API FastAPI
-app = FastAPI()
-
-# Modèle de données pour les requêtes
-class PredictionRequest(BaseModel):
-    text: str
+    if not os.path.isfile(os.path.join(MODEL_DIR, file)):
+        print(f"Erreur : fichier manquant {file}")
+        exit(1)
 
 # Chargement du modèle et du tokenizer
-print("Chargement du tokenizer...")
-tokenizer = RobertaTokenizer.from_pretrained(MODEL_DIR)
-print("Tokenizer chargé avec succès.")
+try:
+    print("Chargement du tokenizer...")
+    tokenizer = RobertaTokenizer.from_pretrained(MODEL_DIR)
+    model = TFRobertaForSequenceClassification.from_pretrained(MODEL_DIR)
+    print("Modèle et tokenizer chargés avec succès !")
+except Exception as e:
+    print(f"Erreur lors du chargement du modèle ou du tokenizer : {e}")
+    exit(1)
 
-print("Chargement du modèle...")
-model = TFRobertaForSequenceClassification.from_pretrained(MODEL_DIR)
-print("Modèle chargé avec succès.")
+# Création de l'application FastAPI
+app = FastAPI()
 
-# Fonction de prédiction
+# Modèle Pydantic pour la validation des données d'entrée
+class TextRequest(BaseModel):
+    text: str
+
 @app.post("/predict/")
-def predict(request: PredictionRequest):
+async def predict(request: TextRequest):
+    text = request.text
+
     try:
-        # Tokenisation de l'entrée
-        inputs = tokenizer(
-            request.text,
-            return_tensors="tf",
-            max_length=64,  # Même longueur que pendant l'entraînement
-            padding="max_length",
-            truncation=True,
-        )
-        
-        # Prédiction avec le modèle fine-tuné
-        outputs = model(inputs)
+        # Tokenisation du texte
+        inputs = tokenizer(text, return_tensors="tf", padding=True, truncation=True, max_length=512)
+        # Prédiction
+        outputs = model(**inputs)
         logits = outputs.logits
-        probabilities = tf.nn.softmax(logits, axis=-1).numpy()[0]
-        predicted_label = tf.argmax(probabilities).numpy()
-        
-        # Retourner les résultats de la prédiction
-        return {
-            "text": request.text,
-            "predicted_label": int(predicted_label),
-            "confidence": float(probabilities[predicted_label]),
-        }
-
+        predicted_class = logits.numpy().argmax(axis=-1)[0]
+        return {"text": text, "prediction": int(predicted_class)}
     except Exception as e:
-        return {"error": f"Erreur lors de la prédiction : {str(e)}"}
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la prédiction : {str(e)}")
 
-@app.get("/")
-def read_root():
-    return {"message": "API de classification de texte avec RoBERTa fine-tuné"}
+if __name__ == "__main__":
+    # Lance l'API avec Uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8080)
