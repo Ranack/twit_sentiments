@@ -22,20 +22,25 @@ def predict(request: PredictionRequest):
         logging.debug(f"Received request: {request}")
 
         # Charger le tokenizer et le modèle
-        tokenizer = RobertaTokenizer.from_pretrained("./fine_tuned_roberta")
-        model = TFRobertaForSequenceClassification.from_pretrained("./fine_tuned_roberta")
+        try:
+            tokenizer = RobertaTokenizer.from_pretrained("./fine_tuned_roberta")
+            model = TFRobertaForSequenceClassification.from_pretrained("./fine_tuned_roberta")
+        except Exception as e:
+            logging.error(f"Error loading model or tokenizer: {e}")
+            raise HTTPException(status_code=500, detail=f"Error loading model or tokenizer: {e}")
 
         logging.debug("Model and tokenizer loaded.")
 
         # Tokenisation du texte
         inputs = tokenizer(request.text, return_tensors="tf", padding=True, truncation=True, max_length=64)
 
-        # Effectuer la prédiction
         logging.debug(f"Tokenized inputs: {inputs}")
 
+        # Effectuer la prédiction
         outputs = model(inputs)
 
         if 'logits' not in outputs:
+            logging.error("Model did not return logits.")
             raise HTTPException(status_code=500, detail="Model did not return logits")
 
         logits = outputs.logits
