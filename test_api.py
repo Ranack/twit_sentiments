@@ -6,9 +6,9 @@ def test_predict_valid_text():
     
     response = requests.post(url, json=data)
     
-    print(response.text)  # Afficher la réponse brute pour le débogage
+    print(f"Response: {response.text}")  # Afficher la réponse brute pour le débogage
     
-    assert response.status_code == 200
+    assert response.status_code == 200, f"Expected 200, got {response.status_code} - {response.text}"
     assert "predicted_label" in response.json()
 
 def test_predict_negative_text():
@@ -17,9 +17,9 @@ def test_predict_negative_text():
     
     response = requests.post(url, json=data)
     
-    print(response.text)  # Afficher la réponse brute pour le débogage
+    print(f"Response: {response.text}")  # Afficher la réponse brute pour le débogage
     
-    assert response.status_code == 200
+    assert response.status_code == 200, f"Expected 200, got {response.status_code} - {response.text}"
     assert "predicted_label" in response.json()
 
 def test_predict_empty_text():
@@ -28,9 +28,9 @@ def test_predict_empty_text():
     
     response = requests.post(url, json=data)
     
-    print(response.text)  # Afficher la réponse brute pour le débogage
+    print(f"Response: {response.text}")  # Afficher la réponse brute pour le débogage
     
-    assert response.status_code == 400  # ou selon la logique de ton API
+    assert response.status_code == 400, f"Expected 400, got {response.status_code} - {response.text}"
     assert "detail" in response.json()
 
 def test_predict_special_characters():
@@ -39,7 +39,7 @@ def test_predict_special_characters():
     
     response = requests.post(url, json=data)
     
-    print(response.text)  # Afficher la réponse brute pour le débogage
+    print(f"Response: {response.text}")  # Afficher la réponse brute pour le débogage
     
-    assert response.status_code == 200
+    assert response.status_code == 200, f"Expected 200, got {response.status_code} - {response.text}"
     assert "predicted_label" in response.json()
