@@ -2,26 +2,7 @@ import pytest
 import requests
 
 def test_predict_valid_text():
-    url = "http://127.0.0.1:8080/predict/"
-    data = {"text": "I love this product!"}
-    
-    headers = {
-        'Content-Type': 'application/json'  # Assurez-vous que le type de contenu est JSON
-    }
-    
-    # Envoi de la requête POST
-    response = requests.post(url, json=data, headers=headers)
-    
-    # Afficher la réponse brute pour le débogage
-    print(f"Response: {response.text}")
-    
-    # Vérification du code de statut
-    assert response.status_code == 200, f"Expected 200, got {response.status_code} - {response.text}"
-
-
-
-def test_predict_valid_text():
-    url = "http://127.0.0.1:8080/predict/"
+    url = "http://127.0.0.1:5000/predict/"  # Assurez-vous que le port est 5000
     data = {"text": "I love this product!"}
 
     headers = {
@@ -43,7 +24,7 @@ def test_predict_valid_text():
     assert "confidence" in response_json, "Response missing 'confidence'"
 
 def test_predict_negative_text():
-    url = "http://127.0.0.1:8080/predict/"
+    url = "http://127.0.0.1:5000/predict/"  # Assurez-vous que le port est 5000
     data = {"text": "I hate this product!"}
 
     # Envoi de la requête POST
@@ -61,7 +42,7 @@ def test_predict_negative_text():
     assert "confidence" in response_json, "Response missing 'confidence'"
 
 def test_predict_empty_text():
-    url = "http://127.0.0.1:8080/predict/"
+    url = "http://127.0.0.1:5000/predict/"  # Assurez-vous que le port est 5000
     data = {"text": ""}
 
     # Envoi de la requête POST
@@ -79,7 +60,7 @@ def test_predict_empty_text():
     assert response_json["detail"] == "Text cannot be empty", f"Expected error message 'Text cannot be empty', got {response_json['detail']}"
 
 def test_predict_special_characters():
-    url = "http://127.0.0.1:8080/predict/"
+    url = "http://127.0.0.1:5000/predict/"  # Assurez-vous que le port est 5000
     data = {"text": "!@#$%^&*()"}
 
     # Envoi de la requête POST
@@ -95,4 +76,3 @@ def test_predict_special_characters():
     response_json = response.json()
     assert "predicted_label" in response_json, "Response missing 'predicted_label'"
     assert "confidence" in response_json, "Response missing 'confidence'"
-
