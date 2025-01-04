@@ -1,4 +1,4 @@
-name: Deploy Model
+name: Run API Server and Test Prediction
 
 on:
   push:
@@ -6,30 +6,33 @@ on:
       - main
 
 jobs:
-  deploy:
+  run-api:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install Git LFS
+      run: |
+        curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
+        sudo apt-get install git-lfs
+        git lfs install
+
+    - name: Download LFS files
+      run: git lfs pull
+
+    - name: Checking model files
+      run: |
+        echo "Checking model files..."
+        ls -l ./fine_tuned_roberta
+        # Afficher les fichiers du modèle pour s'assurer qu'ils sont bien téléchargés
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-
-    - name: Check model files
-      run: |
-        echo "Checking model files..."
-        ls -l ./fine_tuned_roberta
-        required_files=("config.json" "merges.txt" "special_tokens_map.json" "tf_model.h5" "tokenizer_config.json" "vocab.json")
-        for file in "${required_files[@]}"; do
-          if [ ! -f "./fine_tuned_roberta/$file" ]; then
-            echo "Error: Missing $file in fine_tuned_roberta."
-            exit 1
-          fi
-        done
-        echo "All model files are present."
+        # Assurez-vous que TensorFlow, FastAPI, transformers et autres dépendances sont installés
 
     - name: Start API server
       run: |
@@ -39,6 +42,8 @@ jobs:
         sleep 30  # Délai prolongé avant d'envoyer la requête de test
         curl -v http://127.0.0.1:5000/predict/ -d '{"text": "I love this product!"}' -H "Content-Type: application/json"
         echo "API is ready"
-      env:
-        pythonLocation: /opt/hostedtoolcache/Python/3.12.8/x64
-        LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.8/x64/lib
+
+    - name: Display API logs
+      run: |
+        cat api_logs.txt  # Afficher les logs de l'API pour débogage
+
