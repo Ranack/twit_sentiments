@@ -1,69 +1,77 @@
-name: MLFlow and FastAPI Workflow
+name: Test API and MLFlow
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Check out repository
+      uses: actions/checkout@v2
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install mlflow
-          pip install pytest  # Assurez-vous que pytest est installé
+    # Installer les dépendances
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.12
 
-      - name: Launch MLFlow Server
-        run: |
-          nohup mlflow server --host 0.0.0.0 --port 5001 > mlflow_logs.txt 2>&1 &
-          echo "MLFlow server lancé, en attente de sa disponibilité..."
-          for i in {1..60}; do
-            if curl -s http://127.0.0.1:5001; then
-              echo "MLFlow disponible !"
-              break
-            fi
-            sleep 1
-          done
-          if [ $i -eq 60 ]; then
-            echo "MLFlow n'est pas disponible après 60 secondes. Échec."
-            exit 1
-          fi
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
 
-      - name: Launch API
-        run: |
-          nohup uvicorn API:app --host 0.0.0.0 --port 8080 > api_logs.txt 2>&1 &
-          echo "API lancée, en attente de sa disponibilité..."
-          for i in {1..60}; do
-            if curl -s http://127.0.0.1:8080; then
-              echo "API disponible !"
-              break
-            fi
-            sleep 1
-          done
-          if [ $i -eq 60 ]; then
-            echo "L'API n'est pas disponible après 60 secondes. Échec."
-            exit 1
-          fi
+    # Lancer le serveur MLFlow
+    - name: Run MLFlow server
+      run: |
+        nohup mlflow server --host 0.0.0.0 --port 5001 > mlflow_logs.txt 2>&1 &
 
-      - name: Display logs if API fails
-        if: failure()
-        run: |
-          echo "Erreur lors du démarrage de l'API, affichage des logs..."
-          cat api_logs.txt || echo "Le fichier api_logs.txt n'existe pas."
+    # Attendre que MLFlow soit disponible
+    - name: Wait for MLFlow to be ready
+      run: |
+        until curl -s http://127.0.0.1:5001; do
+          echo "Waiting for MLFlow..."
+          sleep 5
+        done
+        echo "MLFlow is available!"
 
-      - name: Retrieve MLFlow logs
-        run: |
-          cat mlflow_logs.txt || echo "Le fichier mlflow_logs.txt n'existe pas."
+    # Lancer l'API avec Uvicorn
+    - name: Run API server
+      run: |
+        nohup uvicorn API:app --host 0.0.0.0 --port 8080 > api_logs.txt 2>&1 &
 
-      - name: Run tests and display logs
-        run: |
-          set +e  # Ne pas arrêter l'exécution même en cas d'erreur
-          pytest test_api.py
-          echo "Affichage des logs des tests:"
-          tail -n 20 result.log || echo "result.log n'existe pas"
+    # Attendre que l'API soit disponible
+    - name: Wait for API to be ready
+      run: |
+        until curl -s http://127.0.0.1:8080; do
+          echo "Waiting for API..."
+          sleep 5
+        done
+        echo "API is available!"
+
+    # Afficher les logs MLFlow pour débogage
+    - name: Display MLFlow logs
+      run: |
+        tail -n 50 mlflow_logs.txt || echo "Le fichier mlflow_logs.txt n'existe pas."
+
+    # Afficher les logs API pour débogage
+    - name: Display API logs
+      run: |
+        tail -n 50 api_logs.txt || echo "Le fichier api_logs.txt n'existe pas."
+
+    # Lancer les tests
+    - name: Run tests
+      run: |
+        pytest --maxfail=1 --disable-warnings -q
+
+    # Nettoyage des ressources si nécessaire
+    - name: Clean up
+      run: |
+        pkill -f "mlflow"
+        pkill -f "uvicorn"
