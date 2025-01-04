@@ -1,35 +1,36 @@
+import os
 from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
 import tensorflow as tf
-import os
 
 # Initialisation de l'API FastAPI
 app = FastAPI()
 
-# Chargement global du modèle
-MODEL_DIR = os.path.abspath("./fine_tuned_roberta")
+# Chemin du modèle
+MODEL_DIR = os.path.join(os.getcwd(), "fine_tuned_roberta")
+
+# Vérification de la présence des fichiers nécessaires
+if not os.path.exists(MODEL_DIR):
+    raise FileNotFoundError(f"Le dossier du modèle {MODEL_DIR} est introuvable.")
+required_files = ["config.json", "tf_model.h5", "tokenizer_config.json", "vocab.json"]
+for file in required_files:
+    if not os.path.exists(os.path.join(MODEL_DIR, file)):
+        raise FileNotFoundError(f"Fichier requis introuvable : {file}")
+
+# Chargement du tokenizer et du modèle
 tokenizer = RobertaTokenizer.from_pretrained(MODEL_DIR)
 model = TFRobertaForSequenceClassification.from_pretrained(MODEL_DIR)
 
-# Modèle de données pour les requêtes
 class PredictionRequest(BaseModel):
     text: str
 
-# Fonction de prédiction
 @app.post("/predict/")
 def predict(request: PredictionRequest):
     try:
-        # Tokenisation de l'entrée
         inputs = tokenizer(
-            request.text,
-            return_tensors="tf",
-            max_length=64,
-            padding="max_length",
-            truncation=True,
+            request.text, return_tensors="tf", max_length=64, padding="max_length", truncation=True
         )
-
-        # Prédiction
         outputs = model(inputs)
         logits = outputs.logits
         probabilities = tf.nn.softmax(logits, axis=-1).numpy()[0]
@@ -40,7 +41,6 @@ def predict(request: PredictionRequest):
             "predicted_label": int(predicted_label),
             "confidence": float(probabilities[predicted_label]),
         }
-
     except Exception as e:
         return {"error": f"Erreur lors de la prédiction : {str(e)}"}
 
