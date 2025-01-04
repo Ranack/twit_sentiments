@@ -49,14 +49,7 @@ jobs:
         echo "API is ready"
         cat api_logs.txt  # Afficher les logs de l'API pour débogage
 
-    - name: Check model directory
-      run: |
-        ls -l ./fine_tuned_roberta  # Vérifier que le modèle est bien présent
-
-    - name: Test API with curl
-      run: |
-        curl -s http://127.0.0.1:8080/predict/ -d '{"text": "I love this product!"}' -H "Content-Type: application/json"
-
     - name: Run tests
       run: |
+        curl -s http://127.0.0.1:8080/predict/ -X POST -d '{"text": "I love this product!"}' -H "Content-Type: application/json"
         pytest --maxfail=1 --disable-warnings -q
