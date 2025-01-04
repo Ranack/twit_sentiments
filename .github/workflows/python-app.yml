@@ -12,14 +12,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Étape pour installer MLFlow et dépendances
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install mlflow
+          pip install pytest  # Assurez-vous que pytest est installé
 
-      # Étape pour lancer le serveur MLFlow
       - name: Launch MLFlow Server
         run: |
           nohup mlflow server --host 0.0.0.0 --port 5001 > mlflow_logs.txt 2>&1 &
@@ -36,7 +35,6 @@ jobs:
             exit 1
           fi
 
-      # Étape pour lancer l'API FastAPI
       - name: Launch API
         run: |
           nohup uvicorn API:app --host 0.0.0.0 --port 8080 > api_logs.txt 2>&1 &
@@ -53,14 +51,16 @@ jobs:
             exit 1
           fi
 
-      # Afficher les logs si l'API échoue
       - name: Display logs if API fails
         if: failure()
         run: |
           echo "Erreur lors du démarrage de l'API, affichage des logs..."
           cat api_logs.txt || echo "Le fichier api_logs.txt n'existe pas."
 
-      # Étape finale pour récupérer les logs MLFlow
       - name: Retrieve MLFlow logs
         run: |
           cat mlflow_logs.txt || echo "Le fichier mlflow_logs.txt n'existe pas."
+
+      - name: Run tests
+        run: |
+          pytest test_api.py > result.log; tail -n 10 result.log
