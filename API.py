@@ -12,6 +12,10 @@ app = FastAPI()
 class PredictionRequest(BaseModel):
     text: str
 
+# Charger le tokenizer et le modèle une seule fois au démarrage de l'API
+tokenizer = RobertaTokenizer.from_pretrained("./fine_tuned_roberta")
+model = TFRobertaForSequenceClassification.from_pretrained("./fine_tuned_roberta")
+
 @app.post("/predict/")
 def predict(request: PredictionRequest):
     # Vérifier si le texte est vide avant de procéder
@@ -21,10 +25,6 @@ def predict(request: PredictionRequest):
     logging.debug(f"Received request: {request}")  # Log de la requête reçue
 
     try:
-        # Charger le tokenizer et le modèle
-        tokenizer = RobertaTokenizer.from_pretrained("./fine_tuned_roberta")
-        model = TFRobertaForSequenceClassification.from_pretrained("./fine_tuned_roberta")
-
         # Tokenisation du texte
         inputs = tokenizer(
             request.text,
@@ -51,7 +51,7 @@ def predict(request: PredictionRequest):
         logging.debug(f"Response: {response}")  # Log de la réponse
 
         return response
-    
+
     except Exception as e:
         # Log détaillé en cas d'erreur
         logging.error(f"Error occurred: {str(e)}")
