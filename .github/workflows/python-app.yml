@@ -37,7 +37,7 @@ jobs:
     - name: Start API server
       run: |
         echo "Starting API server..."
-        uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug &
+        uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug > api_logs.txt 2>&1 &
         echo "Waiting for API..."
         sleep 30  # Délai prolongé avant d'envoyer la requête de test
         curl -v http://127.0.0.1:5000/predict/ -d '{"text": "I love this product!"}' -H "Content-Type: application/json"
@@ -45,5 +45,5 @@ jobs:
 
     - name: Display API logs
       run: |
-        cat api_logs.txt  # Afficher les logs de l'API pour débogage
-
+        echo "Displaying API logs:"
+        cat api_logs.txt
