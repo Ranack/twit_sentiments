@@ -1,6 +1,6 @@
-name: Test API and MLFlow
+name: Run API Tests
 
-on:
+on: 
   push:
     branches:
       - main
@@ -9,69 +9,38 @@ on:
       - main
 
 jobs:
-  test:
+  api-tests:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out repository
+    - name: Checkout code
       uses: actions/checkout@v2
 
-    # Installer les dépendances
-    - name: Set up Python 3.12
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.12
+        python-version: '3.12'
 
     - name: Install dependencies
       run: |
-        pip install --upgrade pip
+        python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install pytest requests
 
-    # Lancer le serveur MLFlow
-    - name: Run MLFlow server
+    - name: Start MLFlow server
       run: |
         nohup mlflow server --host 0.0.0.0 --port 5001 > mlflow_logs.txt 2>&1 &
+        echo "Waiting for MLFlow..."
+        while ! curl -s http://127.0.0.1:5001; do sleep 5; done
+        echo "MLFlow is ready"
 
-    # Attendre que MLFlow soit disponible
-    - name: Wait for MLFlow to be ready
-      run: |
-        until curl -s http://127.0.0.1:5001; do
-          echo "Waiting for MLFlow..."
-          sleep 5
-        done
-        echo "MLFlow is available!"
-
-    # Lancer l'API avec Uvicorn
-    - name: Run API server
+    - name: Start API server
       run: |
         nohup uvicorn API:app --host 0.0.0.0 --port 8080 > api_logs.txt 2>&1 &
+        echo "Waiting for API..."
+        while ! curl -s http://127.0.0.1:8080/predict/; do sleep 5; done
+        echo "API is ready"
 
-    # Attendre que l'API soit disponible
-    - name: Wait for API to be ready
-      run: |
-        until curl -s http://127.0.0.1:8080; do
-          echo "Waiting for API..."
-          sleep 5
-        done
-        echo "API is available!"
-
-    # Afficher les logs MLFlow pour débogage
-    - name: Display MLFlow logs
-      run: |
-        tail -n 50 mlflow_logs.txt || echo "Le fichier mlflow_logs.txt n'existe pas."
-
-    # Afficher les logs API pour débogage
-    - name: Display API logs
-      run: |
-        tail -n 50 api_logs.txt || echo "Le fichier api_logs.txt n'existe pas."
-
-    # Lancer les tests
     - name: Run tests
       run: |
         pytest --maxfail=1 --disable-warnings -q
-
-    # Nettoyage des ressources si nécessaire
-    - name: Clean up
-      run: |
-        pkill -f "mlflow"
-        pkill -f "uvicorn"
