@@ -42,6 +42,10 @@ def predict(request: PredictionRequest):
         # Effectuer la prédiction
         logging.debug("Making prediction")
         outputs = model(inputs)
+        if not hasattr(outputs, 'logits') or outputs.logits is None:
+            logging.error("Model output does not contain logits")
+            raise HTTPException(status_code=500, detail="Model output is invalid")
+
         logits = outputs.logits
         probabilities = tf.nn.softmax(logits, axis=-1).numpy()[0]
         predicted_label = tf.argmax(probabilities).numpy()
