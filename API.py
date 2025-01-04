@@ -12,7 +12,6 @@ app = FastAPI()
 class PredictionRequest(BaseModel):
     text: str
 
-# Charger le tokenizer et le modèle uniquement à chaque prédiction
 @app.post("/predict/")
 def predict(request: PredictionRequest):
     # Vérifier si le texte est vide avant de procéder
@@ -22,12 +21,14 @@ def predict(request: PredictionRequest):
     logging.debug(f"Received request: {request}")  # Log de la requête reçue
 
     try:
-        # Charger le tokenizer et le modèle à chaque demande pour éviter les problèmes de mémoire
+        # Charger le tokenizer et le modèle à chaque demande
+        logging.debug("Loading tokenizer and model")
         tokenizer = RobertaTokenizer.from_pretrained("./fine_tuned_roberta")
         model = TFRobertaForSequenceClassification.from_pretrained("./fine_tuned_roberta")
         logging.debug("Model and tokenizer loaded successfully.")
 
         # Tokenisation du texte
+        logging.debug(f"Tokenizing text: {request.text}")
         inputs = tokenizer(
             request.text,
             return_tensors="tf",
@@ -39,6 +40,7 @@ def predict(request: PredictionRequest):
         logging.debug(f"Tokenized inputs: {inputs}")  # Log des données tokenisées
 
         # Effectuer la prédiction
+        logging.debug("Making prediction")
         outputs = model(inputs)
         logits = outputs.logits
         probabilities = tf.nn.softmax(logits, axis=-1).numpy()[0]
@@ -55,6 +57,5 @@ def predict(request: PredictionRequest):
         return response
 
     except Exception as e:
-        # Log détaillé en cas d'erreur
         logging.error(f"Error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
