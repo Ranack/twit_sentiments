@@ -1,6 +1,6 @@
 name: Run API Tests
 
-on:
+on: 
   push:
     branches:
       - main
@@ -40,23 +40,27 @@ jobs:
 
     - name: Start API server
       run: |
-        nohup uvicorn API:app --host 0.0.0.0 --port 8080 --log-level debug > api_logs.txt 2>&1 &
+        echo "Starting API server..."
+        uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug &
         echo "Waiting for API..."
-        max_attempts=10
-        attempt=0
-        while ! curl -s -X POST http://127.0.0.1:8080/predict/ -d '{"text": "I love this product!"}' -H "Content-Type: application/json"; do 
-            echo "Waiting for API to start..."
-            sleep 20  # Attente augmentée pour le démarrage
-            attempt=$((attempt+1))
-            if [ $attempt -ge $max_attempts ]; then
-                echo "API failed to start after $max_attempts attempts"
-                exit 1
-            fi
-        done
+        sleep 30  # Délai prolongé avant d'envoyer la requête de test
+        curl -v http://127.0.0.1:5000/predict/ -d '{"text": "I love this product!"}' -H "Content-Type: application/json"
         echo "API is ready"
         cat api_logs.txt  # Afficher les logs de l'API pour débogage
 
+    - name: Manually test API endpoint
+      run: |
+        echo "Manually testing the API endpoint"
+        curl -X POST http://127.0.0.1:5000/predict/ -d '{"text": "I love this product!"}' -H "Content-Type: application/json"
+
     - name: Run tests
       run: |
-        curl -s -X POST http://127.0.0.1:8080/predict/ -d '{"text": "I love this product!"}' -H "Content-Type: application/json"
+        echo "Running automated tests..."
+        curl -X POST http://127.0.0.1:5000/predict/ -d '{"text": "I love this product!"}' -H "Content-Type: application/json"
         pytest --maxfail=1 --disable-warnings -q
+
+    - name: Debugging logs
+      run: |
+        echo "Displaying API logs..."
+        cat api_logs.txt
+        tail -n 100 mlflow_logs.txt
