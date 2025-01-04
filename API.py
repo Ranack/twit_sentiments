@@ -17,10 +17,12 @@ def predict(request: PredictionRequest):
 
     try:
         # Charger le tokenizer et le modèle pré-entraîné (téléchargé ou local)
+        print("Loading tokenizer and model...")
         tokenizer = RobertaTokenizer.from_pretrained("./fine_tuned_roberta")
         model = TFRobertaForSequenceClassification.from_pretrained("./fine_tuned_roberta")
 
         # Traitement du texte d'entrée
+        print("Tokenizing input text...")
         inputs = tokenizer(
             request.text,
             return_tensors="tf",
@@ -32,6 +34,7 @@ def predict(request: PredictionRequest):
         print(f"Tokenized inputs: {inputs}")  # Log des entrées tokenisées
 
         # Effectuer la prédiction
+        print("Making prediction...")
         outputs = model(inputs)
         logits = outputs.logits
 
@@ -55,4 +58,4 @@ def predict(request: PredictionRequest):
     except Exception as e:
         # Log détaillé de l'erreur
         print(f"Error occurred: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
