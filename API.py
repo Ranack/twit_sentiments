@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import tensorflow as tf
 from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
@@ -12,28 +12,37 @@ class PredictionRequest(BaseModel):
 def predict(request: PredictionRequest):
     print(f"Received request: {request.text}")  # Log du texte reçu
 
-    tokenizer = RobertaTokenizer.from_pretrained("./fine_tuned_roberta")
-    model = TFRobertaForSequenceClassification.from_pretrained("./fine_tuned_roberta")
+    try:
+        # Charger le tokenizer et le modèle
+        tokenizer = RobertaTokenizer.from_pretrained("./fine_tuned_roberta")
+        model = TFRobertaForSequenceClassification.from_pretrained("./fine_tuned_roberta")
 
-    inputs = tokenizer(
-        request.text,
-        return_tensors="tf",
-        max_length=64,
-        padding="max_length",
-        truncation=True
-    )
+        # Traitement du texte d'entrée
+        inputs = tokenizer(
+            request.text,
+            return_tensors="tf",
+            max_length=64,
+            padding="max_length",
+            truncation=True
+        )
 
-    outputs = model(inputs)
-    logits = outputs.logits
-    probabilities = tf.nn.softmax(logits, axis=-1).numpy()[0]
-    predicted_label = tf.argmax(probabilities).numpy()
+        # Effectuer la prédiction
+        outputs = model(inputs)
+        logits = outputs.logits
+        probabilities = tf.nn.softmax(logits, axis=-1).numpy()[0]
+        predicted_label = tf.argmax(probabilities).numpy()
 
-    response = {
-        "text": request.text,
-        "predicted_label": int(predicted_label),
-        "confidence": float(probabilities[predicted_label])
-    }
+        response = {
+            "text": request.text,
+            "predicted_label": int(predicted_label),
+            "confidence": float(probabilities[predicted_label])
+        }
 
-    print(f"Response: {response}")  # Log de la réponse envoyée
+        print(f"Response: {response}")  # Log de la réponse envoyée
 
-    return response
+        return response
+    
+    except Exception as e:
+        # Si une exception se produit, renvoyer l'erreur et loguer
+        print(f"Error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
