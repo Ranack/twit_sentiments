@@ -9,21 +9,27 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = FastAPI()
 
+# Définir le tokenizer et le modèle globalement pour éviter de les charger à chaque requête
+tokenizer = None
+model = None
+
+# Charger le tokenizer et le modèle une seule fois au démarrage de l'API
+@app.on_event("startup")
+async def load_model():
+    global tokenizer, model
+    try:
+        tokenizer = RobertaTokenizer.from_pretrained("./fine_tuned_roberta")
+        model = TFRobertaForSequenceClassification.from_pretrained("./fine_tuned_roberta")
+        logging.debug("Model and tokenizer loaded successfully.")
+    except Exception as e:
+        logging.error(f"Error loading model: {e}")
+        raise HTTPException(status_code=500, detail=f"Error loading model: {e}")
+
 class PredictionRequest(BaseModel):
     text: str
 
-# Charger le tokenizer et le modèle une seule fois au démarrage de l'API
-try:
-    tokenizer = RobertaTokenizer.from_pretrained("./fine_tuned_roberta")
-    model = TFRobertaForSequenceClassification.from_pretrained("./fine_tuned_roberta")
-    logging.debug("Model and tokenizer loaded successfully.")
-except Exception as e:
-    logging.error(f"Error loading model: {e}")
-    raise HTTPException(status_code=500, detail=f"Error loading model: {e}")
-
-
 @app.post("/predict/")
-def predict(request: PredictionRequest):
+async def predict(request: PredictionRequest):
     # Vérifier si le texte est vide avant de procéder
     if not request.text.strip():  # Si le texte est vide ou composé d'espaces
         raise HTTPException(status_code=400, detail="Text cannot be empty")
