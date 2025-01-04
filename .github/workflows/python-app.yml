@@ -30,13 +30,16 @@ jobs:
           pip install -r requirements.txt
           pip install tensorflow-cpu
 
-      - name: Inspect model files
+      - name: Validate model files
         run: |
-          echo "Vérification des fichiers du modèle..."
+          echo "Vérification des fichiers nécessaires..."
           ls -lh ./fine_tuned_roberta
-          for file in ./fine_tuned_roberta/*; do
-            echo "Contenu de $file :"
-            head -n 10 "$file"
+          required_files=("config.json" "tf_model.h5" "tokenizer_config.json" "vocab.json")
+          for file in "${required_files[@]}"; do
+            if [ ! -f "./fine_tuned_roberta/$file" ]; then
+              echo "Erreur : fichier manquant $file"
+              exit 1
+            fi
           done
 
       - name: Launch API
@@ -54,12 +57,9 @@ jobs:
             echo "L'API n'est pas disponible après 60 secondes. Échec."
             exit 1
 
-      - name: Afficher les logs complets de l'API
+      - name: Display API logs on failure
         if: failure()
         run: cat api_logs.txt
-
-      - name: Attendre 10 secondes avant les tests
-        run: sleep 10
 
       - name: Run tests
         run: pytest test_api.py
