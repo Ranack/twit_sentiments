@@ -2,12 +2,11 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
 import tensorflow as tf
-from sklearn.model_selection import train_test_split
-import pandas as pd
 import mlflow
 import mlflow.tensorflow
-import mlflow.pyfunc
 import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
 # Configuration de MLFlow
 mlflow.set_tracking_uri("http://127.0.0.1:5001")
