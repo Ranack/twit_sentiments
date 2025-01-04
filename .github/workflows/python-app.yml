@@ -44,7 +44,7 @@ jobs:
         echo "Waiting for API..."
         max_attempts=10
         attempt=0
-        while ! curl -s http://127.0.0.1:8080/predict/; do 
+        while ! curl -s http://127.0.0.1:8080/predict/ -X POST -d '{"text": "I love this product!"}' -H "Content-Type: application/json"; do 
             echo "Waiting for API to start..."
             sleep 20  # Attente augmentée pour le démarrage
             attempt=$((attempt+1))
