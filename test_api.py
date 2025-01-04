@@ -28,6 +28,7 @@ def test_predict_valid_texti():
     # Envoi de la requête POST
     response = requests.post(url, json=data)
 
+    # Afficher la réponse brute pour le débogage
     print(f"Response: {response.text}")  # Afficher la réponse brute pour le débogage
 
     assert response.status_code == 200, f"Expected 200, got {response.status_code} - {response.text}"
@@ -39,6 +40,7 @@ def test_predict_negative_text():
     # Envoi de la requête POST
     response = requests.post(url, json=data)
 
+    # Afficher la réponse brute pour le débogage
     print(f"Response: {response.text}")  # Afficher la réponse brute pour le débogage
 
     assert response.status_code == 200, f"Expected 200, got {response.status_code} - {response.text}"
@@ -50,6 +52,7 @@ def test_predict_empty_text():
     # Envoi de la requête POST
     response = requests.post(url, json=data)
 
+    # Afficher la réponse brute pour le débogage
     print(f"Response: {response.text}")  # Afficher la réponse brute pour le débogage
 
     # Vérification du code de statut (on s'attend à une erreur 400 pour un texte vide)
@@ -62,6 +65,8 @@ def test_predict_special_characters():
     # Envoi de la requête POST
     response = requests.post(url, json=data)
 
+    # Afficher la réponse brute pour le débogage
     print(f"Response: {response.text}")  # Afficher la réponse brute pour le débogage
 
     assert response.status_code == 200, f"Expected 200, got {response.status_code} - {response.text}"
+
