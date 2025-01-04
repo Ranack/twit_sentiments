@@ -3,17 +3,20 @@ from pydantic import BaseModel
 import tensorflow as tf
 from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
 
+# Initialisation de l'application FastAPI
 app = FastAPI()
 
+# Classe de modèle pour valider la structure de la requête
 class PredictionRequest(BaseModel):
     text: str
 
+# Route de prédiction
 @app.post("/predict/")
 def predict(request: PredictionRequest):
     print(f"Received request: {request.text}")  # Log du texte reçu
 
     try:
-        # Charger le tokenizer et le modèle
+        # Charger le tokenizer et le modèle pré-entraîné (téléchargé ou local)
         tokenizer = RobertaTokenizer.from_pretrained("./fine_tuned_roberta")
         model = TFRobertaForSequenceClassification.from_pretrained("./fine_tuned_roberta")
 
@@ -31,13 +34,18 @@ def predict(request: PredictionRequest):
         # Effectuer la prédiction
         outputs = model(inputs)
         logits = outputs.logits
+
+        # Calcul des probabilités via softmax
         probabilities = tf.nn.softmax(logits, axis=-1).numpy()[0]
+
+        # Prédiction et confiance associée
         predicted_label = tf.argmax(probabilities).numpy()
+        confidence = float(probabilities[predicted_label])
 
         response = {
             "text": request.text,
             "predicted_label": int(predicted_label),
-            "confidence": float(probabilities[predicted_label])
+            "confidence": confidence
         }
 
         print(f"Response: {response}")  # Log de la réponse envoyée
