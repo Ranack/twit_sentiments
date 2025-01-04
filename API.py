@@ -5,7 +5,6 @@ from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
 
 app = FastAPI()
 
-# Modèle de données pour la requête
 class PredictionRequest(BaseModel):
     text: str
 
@@ -49,4 +48,3 @@ def predict(request: PredictionRequest):
         # Log détaillé en cas d'erreur
         print(f"Error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
-

@@ -5,16 +5,21 @@ def test_predict_valid_text():
     url = "http://127.0.0.1:8080/predict/"
     data = {"text": "I love this product!"}
 
-    # Afficher les données envoyées pour déboguer
+    # Affichage des données envoyées
     print(f"Sending request with data: {data}")
 
-    response = requests.post(url, json=data)
+    headers = {
+        'Content-Type': 'application/json'  # Assurer l'en-tête de contenu approprié
+    }
+
+    response = requests.post(url, json=data, headers=headers)
 
     # Afficher la réponse brute pour le débogage
     print(f"Response: {response.text}")  
 
-    # Assertion pour vérifier le code de statut
+    # Vérification du code de statut
     assert response.status_code == 200, f"Expected 200, got {response.status_code} - {response.text}"
+
 
 
 def test_predict_valid_text():
