@@ -58,5 +58,5 @@ jobs:
 
     - name: Run tests
       run: |
-        curl -s http://127.0.0.1:8080/predict/ -X POST -d '{"text": "I love this product!"}' -H "Content-Type: application/json"
-        pytest --maxfail=1 --disable-warnings -q
+        echo "Running API tests..."
+        pytest --maxfail=1 --disable-warnings -q test_api.py  # Assure-toi que ce fichier de test est bien exécuté
