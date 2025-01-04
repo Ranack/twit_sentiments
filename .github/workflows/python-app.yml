@@ -1,6 +1,6 @@
 name: Run API Tests
 
-on:
+on: 
   push:
     branches:
       - main
@@ -31,16 +31,31 @@ jobs:
       run: |
         nohup mlflow server --host 0.0.0.0 --port 5001 > mlflow_logs.txt 2>&1 &
         echo "Waiting for MLFlow..."
-        while ! curl -s http://127.0.0.1:5001; do sleep 5; done
+        while ! curl -s http://127.0.0.1:5001; do 
+            echo "Waiting for MLFlow to start..."
+            sleep 10
+        done
         echo "MLFlow is ready"
+        cat mlflow_logs.txt  # Afficher les logs de MLFlow pour débogage
 
     - name: Start API server
       run: |
         nohup uvicorn API:app --host 0.0.0.0 --port 8080 > api_logs.txt 2>&1 &
         echo "Waiting for API..."
-        # Vérifier que l'API répond sur le bon endpoint
-        while ! curl -s http://127.0.0.1:8080/predict/ > /dev/null; do sleep 5; done
+        while ! curl -s http://127.0.0.1:8080/predict/; do 
+            echo "Waiting for API to start..."
+            sleep 10
+        done
         echo "API is ready"
+        cat api_logs.txt  # Afficher les logs de l'API pour débogage
+
+    - name: Check model directory
+      run: |
+        ls -l ./fine_tuned_roberta  # Vérifier que le modèle est bien présent
+
+    - name: Test API with curl
+      run: |
+        curl -s http://127.0.0.1:8080/predict/ -d '{"text": "I love this product!"}' -H "Content-Type: application/json"
 
     - name: Run tests
       run: |
