@@ -66,4 +66,4 @@ jobs:
           set +e  # Ne pas arrêter l'exécution même en cas d'erreur
           pytest test_api.py
           echo "Affichage des logs des tests:"
-          tail -n 20 result.log  # Afficher les dernières lignes des logs
+          tail -n 20 result.log || echo "result.log n'existe pas"
