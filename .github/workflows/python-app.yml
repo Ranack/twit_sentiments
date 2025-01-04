@@ -36,16 +36,15 @@ jobs:
           ls -lh ./fine_tuned_roberta
           for file in ./fine_tuned_roberta/*; do
             echo "Contenu de $file :"
-            cat "$file"
+            head -n 10 "$file"
           done
 
       - name: Launch API
         run: |
           nohup python API.py > api_logs.txt 2>&1 &
           echo "API lancée, en attente de sa disponibilité..."
-          sleep 10  # Attendre un peu plus longtemps pour que l'API démarre
           for i in {1..60}; do
-            if curl -s http://127.0.0.1:8080; then  # Vérifier sur le port 8080
+            if curl -s http://127.0.0.1:8080; then
               echo "API disponible !"
               break
             fi
@@ -55,14 +54,12 @@ jobs:
             echo "L'API n'est pas disponible après 60 secondes. Échec."
             exit 1
 
-      - name: Display API logs on failure
+      - name: Afficher les logs complets de l'API
         if: failure()
-        run: |
-          echo "Affichage des logs de l'API en cas d'échec..."
-          tail -n 50 api_logs.txt  # Afficher les 50 dernières lignes des logs
+        run: cat api_logs.txt
+
+      - name: Attendre 10 secondes avant les tests
+        run: sleep 10
 
       - name: Run tests
-        run: |
-          echo "Attente avant les tests..."
-          sleep 20  # Attendre 20 secondes avant d'exécuter les tests
-          pytest test_api.py
+        run: pytest test_api.py
