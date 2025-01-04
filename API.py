@@ -1,10 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+import logging
 import tensorflow as tf
 from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
-import logging
 
-# Configurer le logger
+# Configuration des logs
 logging.basicConfig(level=logging.DEBUG)
 
 app = FastAPI()
@@ -14,37 +14,29 @@ class PredictionRequest(BaseModel):
 
 @app.post("/predict/")
 def predict(request: PredictionRequest):
-    # Vérifier si le texte est vide avant de procéder
-    if not request.text.strip():  # Si le texte est vide ou composé d'espaces
+    # Vérification que le texte n'est pas vide
+    if not request.text.strip():
         raise HTTPException(status_code=400, detail="Text cannot be empty")
 
-    logging.debug(f"Received request: {request}")  # Log de la requête reçue
-
     try:
-        # Charger le tokenizer et le modèle à chaque demande
-        logging.debug("Loading tokenizer and model")
+        logging.debug(f"Received request: {request}")
+
+        # Charger le tokenizer et le modèle
         tokenizer = RobertaTokenizer.from_pretrained("./fine_tuned_roberta")
         model = TFRobertaForSequenceClassification.from_pretrained("./fine_tuned_roberta")
-        logging.debug("Model and tokenizer loaded successfully.")
+
+        logging.debug("Model and tokenizer loaded.")
 
         # Tokenisation du texte
-        logging.debug(f"Tokenizing text: {request.text}")
-        inputs = tokenizer(
-            request.text,
-            return_tensors="tf",
-            max_length=64,
-            padding="max_length",
-            truncation=True
-        )
-
-        logging.debug(f"Tokenized inputs: {inputs}")  # Log des données tokenisées
+        inputs = tokenizer(request.text, return_tensors="tf", padding=True, truncation=True, max_length=64)
 
         # Effectuer la prédiction
-        logging.debug("Making prediction")
+        logging.debug(f"Tokenized inputs: {inputs}")
+
         outputs = model(inputs)
-        if not hasattr(outputs, 'logits') or outputs.logits is None:
-            logging.error("Model output does not contain logits")
-            raise HTTPException(status_code=500, detail="Model output is invalid")
+
+        if 'logits' not in outputs:
+            raise HTTPException(status_code=500, detail="Model did not return logits")
 
         logits = outputs.logits
         probabilities = tf.nn.softmax(logits, axis=-1).numpy()[0]
@@ -56,11 +48,9 @@ def predict(request: PredictionRequest):
             "confidence": float(probabilities[predicted_label])
         }
 
-        logging.debug(f"Response: {response}")  # Log de la réponse
-
+        logging.debug(f"Prediction response: {response}")
         return response
 
     except Exception as e:
-        # Log détaillé en cas d'erreur
-        logging.error(f"Error occurred: {str(e)}")
+        logging.error(f"Error occurred: {e}")
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
