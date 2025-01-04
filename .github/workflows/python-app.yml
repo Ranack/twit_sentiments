@@ -61,7 +61,7 @@ jobs:
         run: |
           cat mlflow_logs.txt || echo "Le fichier mlflow_logs.txt n'existe pas."
 
-     - name: Run tests
-  run: |
-    pytest test_api.py > result.log
-    cat result.log  # Afficher les logs complets des tests pour une meilleure visibilité
+      - name: Run tests
+        run: |
+          pytest test_api.py > result.log
+          cat result.log  # Afficher les logs complets des tests pour une meilleure visibilité
