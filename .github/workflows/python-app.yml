@@ -1,69 +1,66 @@
-name: MLFlow and FastAPI Workflow
+name: Test API and MLFlow
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    # Check out the repository
+    - name: Checkout code
+      uses: actions/checkout@v2
+    
+    # Set up Python environment
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.12'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install mlflow
-          pip install pytest  # Assurez-vous que pytest est installé
+    # Install dependencies
+    - name: Clean environment and install dependencies
+      run: |
+        rm -rf .venv  # Nettoyage de l'environnement virtuel
+        python -m venv .venv  # Création d'un nouvel environnement virtuel
+        source .venv/bin/activate  # Activation de l'environnement virtuel
+        pip install --upgrade pip
+        pip install -r requirements.txt  # Installation des dépendances du projet
 
-      - name: Launch MLFlow Server
-        run: |
-          nohup mlflow server --host 0.0.0.0 --port 5001 > mlflow_logs.txt 2>&1 &
-          echo "MLFlow server lancé, en attente de sa disponibilité..."
-          for i in {1..60}; do
-            if curl -s http://127.0.0.1:5001; then
-              echo "MLFlow disponible !"
-              break
-            fi
-            sleep 1
-          done
-          if [ $i -eq 60 ]; then
-            echo "MLFlow n'est pas disponible après 60 secondes. Échec."
-            exit 1
-          fi
+    # Start MLFlow server
+    - name: Start MLFlow server
+      run: |
+        nohup mlflow server --host 0.0.0.0 --port 5001 > mlflow_logs.txt 2>&1 &  # Démarrer MLFlow
+        echo "Waiting for MLFlow to be ready..."
+        until curl -s http://127.0.0.1:5001; do echo "Waiting for MLFlow..."; sleep 2; done  # Attendre que MLFlow soit prêt
 
-      - name: Launch API
-        run: |
-          nohup uvicorn API:app --host 0.0.0.0 --port 8080 > api_logs.txt 2>&1 &
-          echo "API lancée, en attente de sa disponibilité..."
-          for i in {1..60}; do
-            if curl -s http://127.0.0.1:8080; then
-              echo "API disponible !"
-              break
-            fi
-            sleep 1
-          done
-          if [ $i -eq 60 ]; then
-            echo "L'API n'est pas disponible après 60 secondes. Échec."
-            exit 1
-          fi
+    # Start FastAPI server
+    - name: Start API server
+      run: |
+        nohup uvicorn API:app --host 0.0.0.0 --port 8080 > api_logs.txt 2>&1 &  # Démarrer l'API FastAPI
+        echo "Waiting for API to be ready..."
+        until curl -s http://127.0.0.1:8080/predict/; do echo "Waiting for API..."; sleep 2; done  # Attendre que l'API soit prête
 
-      - name: Display logs if API fails
-        if: failure()
-        run: |
-          echo "Erreur lors du démarrage de l'API, affichage des logs..."
-          cat api_logs.txt || echo "Le fichier api_logs.txt n'existe pas."
+    # Display MLFlow logs for debugging
+    - name: Display MLFlow logs
+      run: cat mlflow_logs.txt || echo "Le fichier mlflow_logs.txt n'existe pas."
 
-      - name: Retrieve MLFlow logs
-        run: |
-          cat mlflow_logs.txt || echo "Le fichier mlflow_logs.txt n'existe pas."
+    # Display API logs for debugging
+    - name: Display API logs
+      run: cat api_logs.txt || echo "Le fichier api_logs.txt n'existe pas."
 
-      - name: Run tests and display logs
-        run: |
-          set +e  # Ne pas arrêter l'exécution même en cas d'erreur
-          pytest test_api.py
-          echo "Affichage des logs des tests:"
-          tail -n 20 result.log || echo "result.log n'existe pas"
+    # Run tests with pytest
+    - name: Run tests
+      run: |
+        source .venv/bin/activate  # Activer l'environnement virtuel
+        pytest --maxfail=1 --disable-warnings -v  # Exécuter les tests en mode verbeux
+
+    # Clean up job
+    - name: Clean up after tests
+      run: |
+        kill $(lsof -t -i:5001)  # Arrêter le serveur MLFlow
+        kill $(lsof -t -i:8080)  # Arrêter le serveur FastAPI
