@@ -4,6 +4,25 @@ import requests
 def test_predict_valid_text():
     url = "http://127.0.0.1:8080/predict/"
     data = {"text": "I love this product!"}
+    
+    headers = {
+        'Content-Type': 'application/json'  # Assurez-vous que le type de contenu est JSON
+    }
+    
+    # Envoi de la requête POST
+    response = requests.post(url, json=data, headers=headers)
+    
+    # Afficher la réponse brute pour le débogage
+    print(f"Response: {response.text}")
+    
+    # Vérification du code de statut
+    assert response.status_code == 200, f"Expected 200, got {response.status_code} - {response.text}"
+
+
+
+def test_predict_valid_text():
+    url = "http://127.0.0.1:8080/predict/"
+    data = {"text": "I love this product!"}
 
     headers = {
         'Content-Type': 'application/json'  # Assurez-vous que le type de contenu est JSON
