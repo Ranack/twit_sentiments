@@ -26,6 +26,8 @@ def predict(request: PredictionRequest):
             truncation=True
         )
 
+        print(f"Tokenized inputs: {inputs}")  # Log des entrées tokenisées
+
         # Effectuer la prédiction
         outputs = model(inputs)
         logits = outputs.logits
@@ -43,6 +45,6 @@ def predict(request: PredictionRequest):
         return response
     
     except Exception as e:
-        # Si une exception se produit, renvoyer l'erreur et loguer
-        print(f"Error occurred: {e}")
+        # Log détaillé de l'erreur
+        print(f"Error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
