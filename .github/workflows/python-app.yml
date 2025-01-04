@@ -1,49 +1,41 @@
-name: Python application
+name: MLFlow and FastAPI Workflow
 
 on:
   push:
     branches:
-      - "main"
-  pull_request:
-    branches:
-      - "main"
-
-permissions:
-  contents: write
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.10"
+        uses: actions/checkout@v2
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install tensorflow-cpu
-          pip install uvicorn fastapi
+          pip install mlflow
+          pip install pytest  # Assurez-vous que pytest est installé
 
-      - name: Validate model files
+      - name: Launch MLFlow Server
         run: |
-          echo "Vérification des fichiers nécessaires..."
-          ls -lh ./fine_tuned_roberta
-          required_files=("config.json" "tf_model.h5" "tokenizer_config.json" "vocab.json")
-          for file in "${required_files[@]}"; do
-            if [ ! -f "./fine_tuned_roberta/$file" ]; then
-              echo "Erreur : fichier manquant $file"
-              exit 1
+          nohup mlflow server --host 0.0.0.0 --port 5001 > mlflow_logs.txt 2>&1 &
+          echo "MLFlow server lancé, en attente de sa disponibilité..."
+          for i in {1..60}; do
+            if curl -s http://127.0.0.1:5001; then
+              echo "MLFlow disponible !"
+              break
             fi
+            sleep 1
           done
+          if [ $i -eq 60 ]; then
+            echo "MLFlow n'est pas disponible après 60 secondes. Échec."
+            exit 1
+          fi
 
-      - name: Launch API with FastAPI
+      - name: Launch API
         run: |
           nohup uvicorn API:app --host 0.0.0.0 --port 8080 > api_logs.txt 2>&1 &
           echo "API lancée, en attente de sa disponibilité..."
@@ -57,10 +49,18 @@ jobs:
           if [ $i -eq 60 ]; then
             echo "L'API n'est pas disponible après 60 secondes. Échec."
             exit 1
+          fi
 
-      - name: Display API logs on failure
+      - name: Display logs if API fails
         if: failure()
-        run: cat api_logs.txt
+        run: |
+          echo "Erreur lors du démarrage de l'API, affichage des logs..."
+          cat api_logs.txt || echo "Le fichier api_logs.txt n'existe pas."
+
+      - name: Retrieve MLFlow logs
+        run: |
+          cat mlflow_logs.txt || echo "Le fichier mlflow_logs.txt n'existe pas."
 
       - name: Run tests
-        run: pytest test_api.py
+        run: |
+          pytest test_api.py > result.log; tail -n 10 result.log
