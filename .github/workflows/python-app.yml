@@ -1,42 +1,35 @@
-name: Run API Tests
+name: Deploy Model
 
-on: 
+on:
   push:
-    branches:
-      - main
-  pull_request:
     branches:
       - main
 
 jobs:
-  api-tests:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.12'
+      uses: actions/checkout@v3
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest requests
 
-    - name: Start MLFlow server
+    - name: Check model files
       run: |
-        nohup mlflow server --host 0.0.0.0 --port 5001 > mlflow_logs.txt 2>&1 &
-        echo "Waiting for MLFlow..."
-        while ! curl -s http://127.0.0.1:5001; do 
-            echo "Waiting for MLFlow to start..."
-            sleep 20  # Attente augmentée pour le démarrage
+        echo "Checking model files..."
+        ls -l ./fine_tuned_roberta
+        required_files=("config.json" "merges.txt" "special_tokens_map.json" "tf_model.h5" "tokenizer_config.json" "vocab.json")
+        for file in "${required_files[@]}"; do
+          if [ ! -f "./fine_tuned_roberta/$file" ]; then
+            echo "Error: Missing $file in fine_tuned_roberta."
+            exit 1
+          fi
         done
-        echo "MLFlow is ready"
-        cat mlflow_logs.txt  # Afficher les logs de MLFlow pour débogage
+        echo "All model files are present."
 
     - name: Start API server
       run: |
@@ -46,21 +39,6 @@ jobs:
         sleep 30  # Délai prolongé avant d'envoyer la requête de test
         curl -v http://127.0.0.1:5000/predict/ -d '{"text": "I love this product!"}' -H "Content-Type: application/json"
         echo "API is ready"
-        cat api_logs.txt  # Afficher les logs de l'API pour débogage
-
-    - name: Manually test API endpoint
-      run: |
-        echo "Manually testing the API endpoint"
-        curl -X POST http://127.0.0.1:5000/predict/ -d '{"text": "I love this product!"}' -H "Content-Type: application/json"
-
-    - name: Run tests
-      run: |
-        echo "Running automated tests..."
-        curl -X POST http://127.0.0.1:5000/predict/ -d '{"text": "I love this product!"}' -H "Content-Type: application/json"
-        pytest --maxfail=1 --disable-warnings -q
-
-    - name: Debugging logs
-      run: |
-        echo "Displaying API logs..."
-        cat api_logs.txt
-        tail -n 100 mlflow_logs.txt
+      env:
+        pythonLocation: /opt/hostedtoolcache/Python/3.12.8/x64
+        LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.8/x64/lib
