@@ -1,17 +1,3 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-import logging
-import tensorflow as tf
-from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
-
-# Configuration des logs
-logging.basicConfig(level=logging.DEBUG)
-
-app = FastAPI()
-
-class PredictionRequest(BaseModel):
-    text: str
-
 @app.post("/predict/")
 def predict(request: PredictionRequest):
     # Vérification que le texte n'est pas vide
@@ -20,6 +6,12 @@ def predict(request: PredictionRequest):
 
     try:
         logging.debug(f"Received request: {request}")
+
+        # Vérification que le répertoire du modèle est valide
+        import os
+        if not os.path.exists("./fine_tuned_roberta"):
+            logging.error("Model directory './fine_tuned_roberta' does not exist.")
+            raise HTTPException(status_code=500, detail="Model directory does not exist.")
 
         # Charger le tokenizer et le modèle
         try:
