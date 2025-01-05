@@ -24,9 +24,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ./fine_tuned_roberta
-        key: lfs-model-cache-${{ github.sha }}
+        key: lfs-model-cache-${{ runner.os }}-models
         restore-keys: |
-          lfs-model-cache-
+          lfs-model-cache-${{ runner.os }}-
 
     - name: Check Missing Files
       id: check-missing-files
@@ -62,9 +62,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ./fine_tuned_roberta
-        key: lfs-model-cache-${{ github.sha }}
+        key: lfs-model-cache-${{ runner.os }}-models
         restore-keys: |
-          lfs-model-cache-
+          lfs-model-cache-${{ runner.os }}-
 
     - name: Install dependencies
       run: |
