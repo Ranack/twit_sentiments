@@ -38,7 +38,7 @@ def predict(request: PredictionRequest):
         model_files = os.listdir(model_dir)
         logging.debug(f"Files in model directory: {model_files}")
 
-        # Vérifier la présence des fichiers essentiels du modèle
+        # Vérifier la présence des fichiers essentiels du modèle (exclut pytorch_model.bin)
         required_files = ["config.json", "merges.txt", "special_tokens_map.json", "tf_model.h5", "tokenizer_config.json", "vocab.json"]
         for file in required_files:
             file_path = os.path.join(model_dir, file)
