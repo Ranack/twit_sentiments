@@ -28,27 +28,31 @@ jobs:
         restore-keys: |
           lfs-model-cache-
 
-    - name: Check Model Files
+    - name: Check and Download Missing Files
       run: |
         echo "Checking if model files are complete..."
-        REQUIRED_FILES=("./fine_tuned_roberta/config.json" "./fine_tuned_roberta/pytorch_model.bin")
-        MISSING_FILES=false
+        REQUIRED_FILES=(
+          "./fine_tuned_roberta/config.json"
+          "./fine_tuned_roberta/pytorch_model.bin"
+        )
+        MISSING=false
         for FILE in "${REQUIRED_FILES[@]}"; do
           if [ ! -f "$FILE" ]; then
             echo "Missing $FILE"
-            MISSING_FILES=true
+            MISSING=true
           fi
         done
 
-        if [ "$MISSING_FILES" = "true" ]; then
-          echo "Some files are missing. Downloading via Git LFS..."
+        if [ "$MISSING" = true ]; then
+          echo "Downloading missing files via Git LFS..."
           git lfs pull
+          echo "All files downloaded."
         else
-          echo "All required files are present."
+          echo "All files are present."
         fi
 
-    - name: Save LFS Cache
-      if: steps.restore-cache.outputs.cache-hit != 'true'
+    - name: Save Updated LFS Cache
+      if: steps.restore-cache.outputs.cache-hit != 'true' || [ "$MISSING" = true ]
       uses: actions/cache@v3
       with:
         path: ./fine_tuned_roberta
