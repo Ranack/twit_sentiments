@@ -20,6 +20,7 @@ jobs:
         git lfs install
 
     - name: Restore LFS Cache
+      id: restore-cache
       uses: actions/cache@v3
       with:
         path: ./fine_tuned_roberta
@@ -31,27 +32,29 @@ jobs:
       run: |
         echo "Checking if model files are complete..."
         REQUIRED_FILES=("./fine_tuned_roberta/config.json" "./fine_tuned_roberta/pytorch_model.bin")
+        MISSING_FILES=false
         for FILE in "${REQUIRED_FILES[@]}"; do
           if [ ! -f "$FILE" ]; then
-            echo "Missing $FILE. Downloading files via Git LFS..."
-            git lfs pull
-            break
+            echo "Missing $FILE"
+            MISSING_FILES=true
           fi
         done
 
+        if [ "$MISSING_FILES" = "true" ]; then
+          echo "Some files are missing. Downloading via Git LFS..."
+          git lfs pull
+        else
+          echo "All required files are present."
+        fi
+
     - name: Save LFS Cache
-      if: steps.cache.outputs.cache-hit != 'true'
+      if: steps.restore-cache.outputs.cache-hit != 'true'
       uses: actions/cache@v3
       with:
         path: ./fine_tuned_roberta
         key: lfs-model-cache-${{ github.sha }}
         restore-keys: |
           lfs-model-cache-
-
-    - name: Checking model files
-      run: |
-        echo "Validating model files..."
-        ls -l ./fine_tuned_roberta
 
     - name: Install dependencies
       run: |
