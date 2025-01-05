@@ -19,17 +19,22 @@ jobs:
         sudo apt-get install git-lfs
         git lfs install
 
+    - name: Restore LFS Cache
+      uses: actions/cache@v3
+      with:
+        path: ./fine_tuned_roberta
+        key: lfs-model-cache-${{ github.sha }}
+        restore-keys: |
+          lfs-model-cache-
+
     - name: Check and Download LFS files
-      id: lfs-check
       run: |
         echo "Checking if model files exist..."
-        if [ -f "./fine_tuned_roberta/config.json" ]; then
-          echo "Model files already present. Skipping LFS pull."
-          echo "skip" > lfs_action
-        else
+        if [ ! -f "./fine_tuned_roberta/config.json" ]; then
           echo "Model files missing. Downloading via Git LFS."
           git lfs pull
-          echo "downloaded" > lfs_action
+        else
+          echo "Model files already present."
         fi
 
     - name: Save LFS Cache
