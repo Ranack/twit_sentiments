@@ -57,12 +57,21 @@ jobs:
         git lfs pull
         echo "All files downloaded."
 
+    - name: Generate New Cache Key
+      id: generate-cache-key
+      run: |
+        if [ "$missing" = "true" ]; then
+          echo "new_cache_key=$(find ./fine_tuned_roberta -type f -exec sha256sum {} + | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+        else
+          echo "new_cache_key=${{ steps.restore-cache.outputs.cache-key }}" >> $GITHUB_ENV
+        fi
+
     - name: Save Updated Cache
-      if: env.missing == 'true' || steps.restore-cache.outputs.cache-hit != 'true'
+      if: env.missing == 'true'
       uses: actions/cache@v3
       with:
         path: ./fine_tuned_roberta
-        key: lfs-model-cache-${{ runner.os }}-models
+        key: lfs-model-cache-${{ env.new_cache_key }}
         restore-keys: |
           lfs-model-cache-${{ runner.os }}-
 
