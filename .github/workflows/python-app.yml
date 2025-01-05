@@ -28,7 +28,8 @@ jobs:
         restore-keys: |
           lfs-model-cache-
 
-    - name: Check and Download Missing Files
+    - name: Check Missing Files
+      id: check-missing-files
       run: |
         echo "Checking if model files are complete..."
         REQUIRED_FILES=(
@@ -44,15 +45,20 @@ jobs:
         done
 
         if [ "$MISSING" = true ]; then
-          echo "Downloading missing files via Git LFS..."
-          git lfs pull
-          echo "All files downloaded."
+          echo "missing=true" >> $GITHUB_ENV
         else
-          echo "All files are present."
+          echo "missing=false" >> $GITHUB_ENV
         fi
 
+    - name: Download Missing Files
+      if: env.missing == 'true'
+      run: |
+        echo "Downloading missing files via Git LFS..."
+        git lfs pull
+        echo "All files downloaded."
+
     - name: Save Updated LFS Cache
-      if: steps.restore-cache.outputs.cache-hit != 'true' || [ "$MISSING" = true ]
+      if: env.missing == 'true' || steps.restore-cache.outputs.cache-hit != 'true'
       uses: actions/cache@v3
       with:
         path: ./fine_tuned_roberta
