@@ -50,14 +50,14 @@ jobs:
           echo "missing=false" >> $GITHUB_ENV
         fi
 
-    - name: Download Missing Files
+    - name: Download Missing Files via Git LFS
       if: env.missing == 'true'
       run: |
         echo "Downloading missing files via Git LFS..."
         git lfs pull
         echo "All files downloaded."
 
-    - name: Generate New Cache Key
+    - name: Generate New Cache Key (after download)
       id: generate-cache-key
       run: |
         if [ "$missing" = "true" ]; then
