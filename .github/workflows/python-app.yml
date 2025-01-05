@@ -11,7 +11,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Install Git LFS
       run: |
@@ -19,35 +19,81 @@ jobs:
         sudo apt-get install git-lfs
         git lfs install
 
-    - name: Download LFS files
-      run: git lfs pull
+    - name: Restore LFS Cache
+      id: restore-cache
+      uses: actions/cache@v3
+      with:
+        path: ./fine_tuned_roberta
+        key: lfs-model-cache-${{ runner.os }}-models
+        restore-keys: |
+          lfs-model-cache-${{ runner.os }}-
 
-    - name: Checking model files
+    - name: Check Missing Files
+      id: check-missing-files
       run: |
-        echo "Checking model files..."
-        ls -l ./fine_tuned_roberta
-        # Afficher les fichiers du modèle pour s'assurer qu'ils sont bien téléchargés
+        echo "Checking if model files are complete..."
+        REQUIRED_FILES=(
+          "./fine_tuned_roberta/config.json"
+          "./fine_tuned_roberta/pytorch_model.bin"
+        )
+        MISSING=false
+        for FILE in "${REQUIRED_FILES[@]}"; do
+          if [ ! -f "$FILE" ]; then
+            echo "Missing $FILE"
+            MISSING=true
+          fi
+        done
+
+        if [ "$MISSING" = true ]; then
+          echo "missing=true" >> $GITHUB_ENV
+        else
+          echo "missing=false" >> $GITHUB_ENV
+        fi
+
+    - name: Download Missing Files
+      if: env.missing == 'true'
+      run: |
+        echo "Downloading missing files via Git LFS..."
+        git lfs pull
+        echo "All files downloaded."
+
+    - name: Generate New Cache Key
+      id: generate-cache-key
+      run: |
+        if [ "$missing" = "true" ]; then
+          echo "new_cache_key=$(find ./fine_tuned_roberta -type f -exec sha256sum {} + | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+        else
+          echo "new_cache_key=${{ steps.restore-cache.outputs.cache-key }}" >> $GITHUB_ENV
+        fi
+
+    - name: Save Updated Cache
+      if: env.missing == 'true'
+      uses: actions/cache@v3
+      with:
+        path: ./fine_tuned_roberta
+        key: lfs-model-cache-${{ env.new_cache_key }}
+        restore-keys: |
+          lfs-model-cache-${{ runner.os }}-
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        # Assurez-vous que TensorFlow, FastAPI, transformers et autres dépendances sont installés
 
     - name: Start API server
       run: |
         echo "Starting API server..."
         uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug > api_logs.txt 2>&1 &
-        echo "Waiting for API..."
-        sleep 30  # Délai prolongé avant d'envoyer la requête de test
-        curl -v http://127.0.0.1:5000/predict/ -d '{"text": "I love this product!"}' -H "Content-Type: application/json"
+        echo "Waiting for API to be ready..."
+        for i in {1..30}; do
+          curl -s http://127.0.0.1:5000/predict/ -o /dev/null && break || sleep 1
+        done
         echo "API is ready"
 
     - name: Run Unit Tests
       run: |
         echo "Running unit tests..."
         pytest test_api.py --maxfail=1 --disable-warnings -q
-        # Assurez-vous que vous avez un fichier de test (ex: tests/test_api.py) avec vos tests unitaires
 
     - name: Display API logs
       run: |
