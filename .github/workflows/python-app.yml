@@ -34,7 +34,11 @@ jobs:
         echo "Checking if model files are complete..."
         REQUIRED_FILES=(
           "./fine_tuned_roberta/config.json"
-          "./fine_tuned_roberta/pytorch_model.bin"
+          "./fine_tuned_roberta/tf_model.h5"
+          "./fine_tuned_roberta/merges.txt"
+          "./fine_tuned_roberta/special_tokens_map.json"
+          "./fine_tuned_roberta/tokenizer_config.json"
+          "./fine_tuned_roberta/vocab.json"
         )
         MISSING=false
         for FILE in "${REQUIRED_FILES[@]}"; do
