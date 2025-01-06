@@ -75,7 +75,7 @@ jobs:
 
     # Deploy Docker image to Azure Web App
     - name: Deploy Docker image to Azure Web App
-      uses: azure/webapps-container-deploy@v2
+      uses: azure/webapps-container-deploy@v1
       with:
         app-name: twisentiment-v2  # Nom de l'application Web Azure
         images: ${{ secrets.DOCKER_USERNAME }}/twit_sentiments:latest
