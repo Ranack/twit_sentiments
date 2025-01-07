@@ -7,8 +7,8 @@ API_URL = "https://twisentiment-v2.azurewebsites.net/predict/"
 # Interface Streamlit
 st.title("Test de Classification de Texte avec RoBERTa Fine-Tuné")
 
-# Zone de texte pour saisir le texte à prédire
-text_input = st.text_area("Entrez le texte à analyser (en anglais)", "")
+# Zone de texte pour saisir le texte à prédire avec un exemple de texte par défaut
+text_input = st.text_area("Entrez le texte à analyser (en anglais)", "Exemple : I love this product!")
 
 # Si le bouton "Prédire" est cliqué
 if st.button("Prédire"):
@@ -31,7 +31,7 @@ if st.button("Prédire"):
                 else:
                     st.error(f"Erreur dans la réponse de l'API: {response.status_code}")
                     st.write(response.text)  # Affiche la réponse complète pour débogage
-            except Exception as e:
+            except requests.exceptions.RequestException as e:
                 st.error(f"Erreur lors de la connexion à l'API : {e}")
                 st.write(f"Exception: {e}")  # Affiche l'exception pour mieux comprendre l'erreur
     else:

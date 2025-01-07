@@ -28,19 +28,19 @@ WORKDIR /app
 # Copier les fichiers depuis l'étape de build
 COPY --from=build /app /app
 
-# Installer les dépendances
+# Installer les dépendances (elles sont déjà dans requirements.txt, mais peut-être qu'il faut des versions spécifiques)
 RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Installer les bibliothèques nécessaires
-RUN pip install --no-cache-dir tensorflow==2.10.0 uvicorn streamlit fastapi
+# Copier le modèle fine-tuné dans l'image
+COPY fine_tuned_roberta /app/fine_tuned_roberta
 
-# Exposer les ports utilisés par l'API et Streamlit
+# Exposer les ports utilisés par l'API
 EXPOSE 5000
-EXPOSE 8501
 
-# Créer un script d'entrée pour gérer l'exécution de l'API et de Streamlit
+# Créer un script d'entrée pour gérer l'exécution de l'API et Streamlit
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
-# Commande d'entrée pour démarrer l'API et Streamlit
+# Commande d'entrée pour démarrer l'API
 CMD ["/app/entrypoint.sh"]
