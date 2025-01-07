@@ -51,6 +51,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Create and Activate Python Environment
+      run: |
+        python -m venv venv  # Créer l'environnement virtuel
+        source venv/bin/activate  # Activer l'environnement virtuel
+
     - name: Start API server
       run: |
         source venv/bin/activate  # Activer l'environnement virtuel
@@ -69,7 +74,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up Python environment
+    - name: Create and Activate Python Environment
       run: |
         python -m venv venv  # Créer l'environnement virtuel
         source venv/bin/activate  # Activer l'environnement virtuel
