@@ -57,7 +57,7 @@ def test_predict_empty_text():
     # Vérification du message d'erreur dans la réponse JSON
     response_json = response.json()
     assert "detail" in response_json, "Error response missing 'detail'"
-    assert response_json["detail"] == "Text cannot be empty", f"Expected error message 'Text cannot be empty', got {response_json['detail']}"
+    assert response_json["detail"] == "Le texte ne peut pas être vide.", f"Expected error message 'Le texte ne peut pas être vide.', got {response_json['detail']}"
 
 def test_predict_special_characters():
     url = "http://127.0.0.1:5000/predict/"  # Assurez-vous que le port est 5000
