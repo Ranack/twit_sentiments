@@ -26,15 +26,16 @@ WORKDIR /app
 # Copier les fichiers depuis l'étape de build
 COPY --from=build /app /app
 
-# Installer TensorFlow et Uvicorn pour l'exécution de l'API
-RUN pip install --no-cache-dir tensorflow-cpu==2.10.0 uvicorn
+# Installer TensorFlow, Uvicorn, Streamlit et autres dépendances
+RUN pip install --no-cache-dir tensorflow-cpu==2.10.0 uvicorn streamlit
 
 # Nettoyage des fichiers inutiles
 RUN rm -rf /root/.cache/pip && \
     rm -rf /var/lib/apt/lists/*
 
-# Exposer le port 5000 utilisé par l'application
+# Exposer les ports utilisés par l'API et Streamlit
 EXPOSE 5000
+EXPOSE 8501
 
-# Commande pour démarrer l'application avec uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
+# Commande pour démarrer l'API et l'interface Streamlit
+CMD ["sh", "-c", "uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug & streamlit run app.py --server.port 8501 --server.headless true"]
