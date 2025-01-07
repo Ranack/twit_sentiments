@@ -28,13 +28,20 @@ jobs:
         restore-keys: |
           lfs-model-cache-${{ runner.os }}-
 
+    - name: Set up Python environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate  # Activer l'environnement virtuel
+
     - name: Install dependencies
       run: |
+        source venv/bin/activate  # Activer l'environnement virtuel
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
     - name: Install pytest
       run: |
+        source venv/bin/activate  # Activer l'environnement virtuel
         python -m pip install pytest
 
   # Job to run the API server
@@ -47,6 +54,7 @@ jobs:
 
     - name: Start API server
       run: |
+        source venv/bin/activate  # Activer l'environnement virtuel
         echo "Starting API server..."
         uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug > api_logs.txt 2>&1 &
         echo "Waiting for API to be ready..."
@@ -71,8 +79,14 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
 
+    - name: Set up Python environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate  # Activer l'environnement virtuel
+
     - name: Run Unit Tests
       run: |
+        source venv/bin/activate  # Activer l'environnement virtuel
         echo "Running unit tests..."
         pytest test_api.py --maxfail=1 --disable-warnings -q
 
