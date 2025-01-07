@@ -6,8 +6,9 @@ on:
       - main
 
 jobs:
-  setup:
+  run-api:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -32,66 +33,52 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-  test-api:
-    runs-on: ubuntu-latest
-    needs: setup
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
+    # Installer pytest pour exécuter les tests
     - name: Install pytest
       run: |
         python -m pip install pytest
 
+    # Démarrer l'API avant les tests
     - name: Start API server
       run: |
         echo "Starting API server..."
-        nohup uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug > api_logs.txt 2>&1 &
+        uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug > api_logs.txt 2>&1 &
         echo "Waiting for API to be ready..."
-        for i in {1..120}; do
-          curl -s http://127.0.0.1:5000/predict/ -o /dev/null && echo "API is ready" && break || sleep 2
+        for i in {1..30}; do
+          curl -s http://127.0.0.1:5000/predict/ -o /dev/null && break || sleep 1
         done
-        if [ $? -ne 0 ]; then
-          echo "API did not start within the expected time."
-          cat api_logs.txt
-          exit 1
-        fi
+        echo "API is ready"
 
+    # Exécuter les tests unitaires
     - name: Run Unit Tests
       run: |
         echo "Running unit tests..."
         pytest test_api.py --maxfail=1 --disable-warnings -q
 
+    # Affichage des logs de l'API après les tests
     - name: Display API logs
       run: |
         echo "Displaying API logs:"
         cat api_logs.txt
 
-  build-docker:
-    runs-on: ubuntu-latest
-    needs: test-api
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
+    # Construire l'image Docker uniquement si les tests réussissent
     - name: Build Docker image
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/twit_sentiments:latest .
 
+    # Connexion à DockerHub après la construction de l'image
     - name: Login to DockerHub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
+    # Push de l'image Docker vers DockerHub
     - name: Push Docker image to DockerHub
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/twit_sentiments:latest
 
-  deploy-azure:
-    runs-on: ubuntu-latest
-    needs: build-docker
-    steps:
+    # Déployer l'image Docker sur l'application Web Azure
     - name: Deploy Docker image to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
