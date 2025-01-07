@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import logging
 import tensorflow as tf
@@ -10,6 +11,15 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # Création de l'application FastAPI
 app = FastAPI()
+
+# Ajouter CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Accepter les requêtes depuis n'importe quelle origine
+    allow_credentials=True,
+    allow_methods=["*"],  # Accepter toutes les méthodes (GET, POST, etc.)
+    allow_headers=["*"],  # Accepter tous les headers
+)
 
 # Schéma de requête attendu
 class PredictionRequest(BaseModel):
@@ -85,4 +95,4 @@ def predict(request: PredictionRequest):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", host="0.0.0.0", port=5000, log_level="info")
+    uvicorn.run("API:app", host="0.0.0.0", port=5000, log_level="info")
