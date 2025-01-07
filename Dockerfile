@@ -19,7 +19,7 @@ RUN pip install --upgrade pip
 # Créer un environnement virtuel et y installer les dépendances
 RUN python -m venv /app/venv && \
     /app/venv/bin/pip install --no-cache-dir -r requirements.txt && \
-    /app/venv/bin/pip install --no-cache-dir tensorflow==2.10.0 uvicorn streamlit fastapi
+    /app/venv/bin/pip install --no-cache-dir tensorflow==2.10.0 uvicorn streamlit fastapi transformers
 
 # Étape finale pour créer l'image de production
 FROM python:3.10-slim
@@ -27,15 +27,22 @@ FROM python:3.10-slim
 # Définir le répertoire de travail
 WORKDIR /app
 
-# Copier les fichiers de l'application depuis l'étape de build
-COPY --from=build /app /app
+# Créer un dossier pour le cache si nécessaire
+RUN mkdir -p /app/cache
 
-# Définir les variables d'environnement pour Azure et Streamlit
-ENV WEBSITES_PORT=5000
-ENV STREAMLIT_SERVER_PORT=8501
+# Configurer les variables d'environnement pour que les bibliothèques de transformers et tensorflow utilisent ce cache
+ENV TRANSFORMERS_CACHE=/app/cache
+ENV HF_HOME=/app/cache
+ENV TFHUB_CACHE_DIR=/app/cache
+
+# Copier les fichiers depuis l'étape de build
+COPY --from=build /app /app
 
 # Ajouter l'environnement virtuel au PATH
 ENV PATH="/app/venv/bin:$PATH"
+
+# Installer les dépendances Python nécessaires
+RUN pip install --upgrade pip
 
 # Exposer les ports utilisés par l'API (5000) et Streamlit (8501)
 EXPOSE 5000
