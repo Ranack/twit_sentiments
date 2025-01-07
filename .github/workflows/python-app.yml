@@ -31,6 +31,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        python -m venv venv  # Créer un environnement virtuel
+        source venv/bin/activate  # Activer l'environnement virtuel
+        pip install pytest  # Installer pytest dans l'environnement virtuel
 
   start_api_server:
     runs-on: ubuntu-latest
@@ -57,6 +60,7 @@ jobs:
 
     - name: Run Unit Tests
       run: |
+        source venv/bin/activate  # Réactiver l'environnement virtuel
         echo "Running unit tests..."
         pytest test_api.py --maxfail=1 --disable-warnings -q
 
