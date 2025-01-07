@@ -42,10 +42,25 @@ except Exception as e:
     logging.error(f"Erreur lors du chargement du modèle ou du tokenizer : {e}")
     raise RuntimeError(f"Erreur critique : impossible de charger le modèle ou le tokenizer ({e})")
 
-# Route de santé (Azure health check)
+# Route de santé basique
 @app.get("/")
-def health_check():
+def health_check_root():
     return {"status": "ok", "message": "API is up and running"}
+
+# Route de santé avancée pour Azure health check
+@app.get("/health")
+def health_check():
+    try:
+        # Vérification du modèle et du tokenizer
+        if not tokenizer or not model:
+            raise RuntimeError("Modèle ou tokenizer non initialisé.")
+        # Vérification de la prédiction avec un exemple factice
+        dummy_input = tokenizer("test", return_tensors="tf", max_length=10, truncation=True, padding=True)
+        _ = model(dummy_input)
+        return {"status": "ok", "message": "API and model are healthy"}
+    except Exception as e:
+        logging.error(f"Health check failed: {e}")
+        return {"status": "error", "message": str(e)}
 
 # Endpoint pour les prédictions
 @app.post("/predict/")
@@ -89,7 +104,6 @@ def predict(request: PredictionRequest):
     except Exception as e:
         logging.error(f"Erreur lors de la prédiction : {e}")
         raise HTTPException(status_code=500, detail=f"Erreur interne : {str(e)}")
-
 
 # Point d'entrée pour le déploiement (par exemple avec Docker ou Azure)
 if __name__ == "__main__":
