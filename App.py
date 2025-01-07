@@ -29,8 +29,10 @@ if st.button("Prédire"):
                     st.write(f"Label prédit : {result['predicted_label']}")
                     st.write(f"Confiance : {result['confidence']:.2f}")
                 else:
-                    st.error("Erreur dans la réponse de l'API")
+                    st.error(f"Erreur dans la réponse de l'API: {response.status_code}")
+                    st.write(response.text)  # Affiche la réponse complète pour débogage
             except Exception as e:
                 st.error(f"Erreur lors de la connexion à l'API : {e}")
+                st.write(f"Exception: {e}")  # Affiche l'exception pour mieux comprendre l'erreur
     else:
         st.warning("Veuillez entrer un texte à analyser")
