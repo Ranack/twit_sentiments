@@ -6,9 +6,8 @@ on:
       - main
 
 jobs:
-  setup-environment:
+  install_dependencies:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -28,62 +27,42 @@ jobs:
         restore-keys: |
           lfs-model-cache-${{ runner.os }}-
 
-    - name: Create and Activate Python Environment
-      run: |
-        python -m venv venv  # Créer l'environnement virtuel
-        source venv/bin/activate  # Activer l'environnement virtuel
-
     - name: Install dependencies
       run: |
-        source venv/bin/activate  # Activer l'environnement virtuel
         python -m pip install --upgrade pip
-        pip install -r requirements.txt  # Installer les dépendances
+        pip install -r requirements.txt
 
-    - name: Install pytest
-      run: |
-        source venv/bin/activate  # Activer l'environnement virtuel
-        pip install pytest
-
-  run-api-and-tests:
+  start_api_server:
     runs-on: ubuntu-latest
-    needs: setup-environment
+    needs: install_dependencies
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Create and Activate Python Environment
+    - name: Start API server
       run: |
-        python -m venv venv  # Créer l'environnement virtuel
-        source venv/bin/activate  # Activer l'environnement virtuel
-
-    - name: Install dependencies
-      run: |
-        source venv/bin/activate  # Activer l'environnement virtuel
-        pip install -r requirements.txt  # Réinstaller les dépendances dans l'environnement virtuel
-
-    - name: Start API server and Run Unit Tests
-      run: |
-        source venv/bin/activate  # Activer l'environnement virtuel
-        echo "Starting API server..."
         nohup uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug > api_logs.txt 2>&1 &
         echo "Waiting for API to be ready..."
-        for i in {1..60}; do  # Augmenter l'attente pour l'API
+        for i in {1..60}; do  # Augmentation du délai d'attente
           curl -s http://127.0.0.1:5000/predict/ -o /dev/null && break || sleep 2
         done
         echo "API is ready"
 
-        # Exécuter les tests une fois l'API prête
+  run_tests:
+    runs-on: ubuntu-latest
+    needs: start_api_server
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Run Unit Tests
+      run: |
         echo "Running unit tests..."
         pytest test_api.py --maxfail=1 --disable-warnings -q
 
-    - name: Display API logs
-      run: |
-        echo "Displaying API logs:"
-        cat api_logs.txt
-
-  build-and-deploy:
+  build_and_deploy:
     runs-on: ubuntu-latest
-    needs: run-api-and-tests
+    needs: run_tests
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -102,13 +81,9 @@ jobs:
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/twit_sentiments:latest
 
-  deploy-to-azure:
-    runs-on: ubuntu-latest
-    needs: build-and-deploy
-    steps:
     - name: Deploy Docker image to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: twisentiment-v2  # Nom de l'application Web Azure
+        app-name: twisentiment-v2
         images: ${{ secrets.DOCKER_USERNAME }}/twit_sentiments:latest
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
