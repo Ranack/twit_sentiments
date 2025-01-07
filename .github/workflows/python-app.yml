@@ -6,8 +6,9 @@ on:
       - main
 
 jobs:
-  setup:
+  run-api:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -27,92 +28,57 @@ jobs:
         restore-keys: |
           lfs-model-cache-${{ runner.os }}-
 
-    - name: Set up Python environment
+    - name: Install dependencies
       run: |
-        python -m venv ./venv  # Crée un environnement virtuel dans le répertoire actuel
-        source ./venv/bin/activate  # Active l'environnement virtuel
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install uvicorn  # Installation explicite de uvicorn
-        pip install pytest  # Installation explicite de pytest
 
-  run-api:
-    runs-on: ubuntu-latest
-    needs: setup
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    - name: Set up Python environment
+    # Installer pytest pour exécuter les tests
+    - name: Install pytest
       run: |
-        source ./venv/bin/activate  # Active l'environnement virtuel
+        python -m pip install pytest
 
+    # Démarrer l'API avant les tests
     - name: Start API server
       run: |
         echo "Starting API server..."
-        nohup uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug > api_logs.txt 2>&1 &
+        uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug > api_logs.txt 2>&1 &
         echo "Waiting for API to be ready..."
-        sleep 5  # Donne un peu de temps pour démarrer
-        tail -f api_logs.txt  # Affiche les logs de démarrage pour déboguer
+        for i in {1..30}; do
+          curl -s http://127.0.0.1:5000/predict/ -o /dev/null && break || sleep 1
+        done
+        echo "API is ready"
 
-    - name: Check if API is running
-      run: |
-        curl -s http://127.0.0.1:5000/predict/ || echo "API is not yet available"
-
-  run-tests:
-    runs-on: ubuntu-latest
-    needs: run-api
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    - name: Set up Python environment
-      run: |
-        source ./venv/bin/activate  # Active l'environnement virtuel
-
+    # Exécuter les tests unitaires
     - name: Run Unit Tests
       run: |
         echo "Running unit tests..."
         pytest test_api.py --maxfail=1 --disable-warnings -q
 
+    # Affichage des logs de l'API après les tests
     - name: Display API logs
       run: |
         echo "Displaying API logs:"
         cat api_logs.txt
 
-  build-docker:
-    runs-on: ubuntu-latest
-    needs: run-tests
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
+    # Construire l'image Docker uniquement si les tests réussissent
     - name: Build Docker image
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/twit_sentiments:latest .
 
-  docker-login:
-    runs-on: ubuntu-latest
-    needs: build-docker
-    steps:
+    # Connexion à DockerHub après la construction de l'image
     - name: Login to DockerHub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-  push-docker:
-    runs-on: ubuntu-latest
-    needs: docker-login
-    steps:
+    # Push de l'image Docker vers DockerHub
     - name: Push Docker image to DockerHub
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/twit_sentiments:latest
 
-  deploy-azure:
-    runs-on: ubuntu-latest
-    needs: push-docker
-    steps:
+    # Déployer l'image Docker sur l'application Web Azure
     - name: Deploy Docker image to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
