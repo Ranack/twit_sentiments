@@ -16,8 +16,10 @@ COPY . /app
 # Mettre à jour pip avant d'installer les dépendances
 RUN pip install --upgrade pip
 
-# Installer les dépendances Python nécessaires à partir du fichier requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# Créer un environnement virtuel et y installer les dépendances
+RUN python -m venv /app/venv && \
+    /app/venv/bin/pip install --no-cache-dir -r requirements.txt && \
+    /app/venv/bin/pip install --no-cache-dir tensorflow==2.10.0 uvicorn streamlit fastapi
 
 # Étape finale pour créer l'image de production
 FROM python:3.10-slim
@@ -25,24 +27,21 @@ FROM python:3.10-slim
 # Définir le répertoire de travail
 WORKDIR /app
 
-# Copier les fichiers depuis l'étape de build
+# Copier les fichiers de l'application depuis l'étape de build
 COPY --from=build /app /app
-
-# Installer les dépendances Python supplémentaires
-RUN pip install --upgrade pip
-
-# Installer les bibliothèques nécessaires
-RUN pip install --no-cache-dir tensorflow==2.10.0 uvicorn streamlit fastapi
 
 # Définir les variables d'environnement pour Azure et Streamlit
 ENV WEBSITES_PORT=5000
 ENV STREAMLIT_SERVER_PORT=8501
 
+# Ajouter l'environnement virtuel au PATH
+ENV PATH="/app/venv/bin:$PATH"
+
 # Exposer les ports utilisés par l'API (5000) et Streamlit (8501)
 EXPOSE 5000
 EXPOSE 8501
 
-# Créer un script d'entrée pour gérer l'exécution de l'API et Streamlit
+# Copier le script d'entrée et le rendre exécutable
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
