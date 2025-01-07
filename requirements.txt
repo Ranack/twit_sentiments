@@ -12,3 +12,5 @@ flake8
 tf-keras
 autopep8==1.6.0
 pytest
+numpy<2
+pybind11>=2.12

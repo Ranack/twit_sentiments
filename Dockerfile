@@ -13,9 +13,11 @@ WORKDIR /app
 # Copier les fichiers de l'application dans le conteneur
 COPY . /app
 
-# Installer pip et les dépendances Python nécessaires
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Mettre à jour pip avant d'installer les dépendances
+RUN pip install --upgrade pip
+
+# Installer les dépendances Python nécessaires à partir du fichier requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Étape finale pour créer l'image de production
 FROM python:3.10-slim
@@ -26,16 +28,19 @@ WORKDIR /app
 # Copier les fichiers depuis l'étape de build
 COPY --from=build /app /app
 
-# Installer TensorFlow, Uvicorn, Streamlit et autres dépendances
-RUN pip install --no-cache-dir tensorflow-cpu==2.10.0 uvicorn streamlit
+# Installer les dépendances
+RUN pip install --upgrade pip
 
-# Nettoyage des fichiers inutiles
-RUN rm -rf /root/.cache/pip && \
-    rm -rf /var/lib/apt/lists/*
+# Installer les bibliothèques nécessaires
+RUN pip install --no-cache-dir tensorflow==2.10.0 uvicorn streamlit fastapi
 
 # Exposer les ports utilisés par l'API et Streamlit
 EXPOSE 5000
 EXPOSE 8501
 
-# Commande pour démarrer l'API et l'interface Streamlit
-CMD ["sh", "-c", "uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug & streamlit run app.py --server.port 8501 --server.headless true && wait"]
+# Créer un script d'entrée pour gérer l'exécution de l'API et de Streamlit
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Commande d'entrée pour démarrer l'API et Streamlit
+CMD ["/app/entrypoint.sh"]
