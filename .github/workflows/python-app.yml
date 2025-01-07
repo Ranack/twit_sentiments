@@ -29,8 +29,8 @@ jobs:
 
     - name: Set up Python environment
       run: |
-        python -m venv venv  # Crée un environnement virtuel
-        source venv/bin/activate  # Active l'environnement virtuel
+        python -m venv ./venv  # Crée un environnement virtuel dans le répertoire actuel
+        source ./venv/bin/activate  # Active l'environnement virtuel
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install uvicorn  # Installation explicite de uvicorn
@@ -45,7 +45,7 @@ jobs:
 
     - name: Set up Python environment
       run: |
-        source venv/bin/activate  # Active l'environnement virtuel
+        source ./venv/bin/activate  # Active l'environnement virtuel
 
     - name: Start API server
       run: |
@@ -68,7 +68,7 @@ jobs:
 
     - name: Set up Python environment
       run: |
-        source venv/bin/activate  # Active l'environnement virtuel
+        source ./venv/bin/activate  # Active l'environnement virtuel
 
     - name: Run Unit Tests
       run: |
@@ -119,4 +119,3 @@ jobs:
         app-name: twisentiment-v2  # Nom de l'application Web Azure
         images: ${{ secrets.DOCKER_USERNAME }}/twit_sentiments:latest
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        
