@@ -38,4 +38,4 @@ EXPOSE 5000
 EXPOSE 8501
 
 # Commande pour démarrer l'API et l'interface Streamlit
-CMD ["sh", "-c", "uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug & streamlit run app.py --server.port 8501 --server.headless true"]
+CMD ["sh", "-c", "uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug & streamlit run app.py --server.port 8501 --server.headless true && wait"]
