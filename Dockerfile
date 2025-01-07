@@ -34,7 +34,10 @@ RUN pip install --upgrade pip
 # Installer les bibliothèques nécessaires, y compris tensorflow et Streamlit
 RUN pip install --no-cache-dir tensorflow==2.10.0 uvicorn streamlit fastapi
 
-# Exposer les ports utilisés par l'API (5000) et Streamlit (8501)
+# Définir la variable d'environnement pour Azure (port 5000 pour l'API)
+ENV WEBSITES_PORT=5000
+
+# Exposer le port utilisé par l'API (5000) et Streamlit (8501)
 EXPOSE 5000
 EXPOSE 8501
 
