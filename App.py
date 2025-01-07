@@ -8,7 +8,7 @@ API_URL = "https://twisentiment-v2.azurewebsites.net/predict/"
 st.title("Test de Classification de Texte avec RoBERTa Fine-Tuné")
 
 # Zone de texte pour saisir le texte à prédire
-text_input = st.text_area("Entrez le texte à analyser", "")
+text_input = st.text_area("Entrez le texte à analyser (en anglais)", "")
 
 # Si le bouton "Prédire" est cliqué
 if st.button("Prédire"):
