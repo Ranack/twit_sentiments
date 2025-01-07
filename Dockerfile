@@ -1,5 +1,5 @@
-# Utiliser une image officielle Python comme image de base
-FROM python:3.9-slim
+# Utiliser Python 3.10
+FROM python:3.10-slim
 
 # Installer les dépendances système nécessaires
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -12,12 +12,13 @@ WORKDIR /app
 # Copier les fichiers de l'application dans le conteneur
 COPY . /app
 
-# Installer les dépendances Python
+# Installer pip et les dépendances Python nécessaires
 RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir tensorflow==2.10.0 && \
     pip install --no-cache-dir -r requirements.txt
 
-# Exposer le port utilisé par l'application
-EXPOSE 8000
+# Exposer le port 5000 utilisé par l'application
+EXPOSE 5000
 
 # Commande pour démarrer l'application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
