@@ -45,12 +45,12 @@ jobs:
         # Démarrer Streamlit en arrière-plan
         streamlit run App.py --server.port 8501 --server.headless true > streamlit_logs.txt 2>&1 &
         echo "Waiting for services to be ready..."
-        # Vérifier que l'API est prête
-        for i in {1..30}; do
+        # Vérifier que l'API est prête, augmenter le délai d'attente à 60 secondes
+        for i in {1..60}; do
           curl -s http://127.0.0.1:5000/docs -o /dev/null && break || sleep 1
         done
-        # Vérifier que Streamlit est prêt
-        for i in {1..30}; do
+        # Vérifier que Streamlit est prêt, augmenter le délai d'attente à 60 secondes
+        for i in {1..60}; do
           curl -s http://127.0.0.1:8501 -o /dev/null && break || sleep 1
         done
         echo "API and Streamlit interface are ready"
