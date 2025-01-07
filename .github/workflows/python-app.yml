@@ -45,8 +45,8 @@ jobs:
         echo "Starting API server..."
         uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug > api_logs.txt 2>&1 &
         echo "Waiting for API to be ready..."
-        for i in {1..30}; do
-          curl -s http://127.0.0.1:5000/predict/ -o /dev/null && break || sleep 1
+        for i in {1..60}; do
+          curl -s http://127.0.0.1:5000/predict/ -o /dev/null && break || sleep 5
         done
         echo "API is ready"
 
