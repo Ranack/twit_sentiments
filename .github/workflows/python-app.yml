@@ -31,6 +31,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install pytest  # Installation de pytest ici
 
   run-api:
     runs-on: ubuntu-latest
@@ -55,6 +56,11 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+
+    - name: Install pytest (in case not installed in setup)
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest  # Assurez-vous que pytest est installé
 
     - name: Run Unit Tests
       run: |
