@@ -1,13 +1,12 @@
 # Étape de build pour installer les dépendances
-FROM python:3.10-alpine AS build
+FROM python:3.10-slim AS build
 
 # Installer les dépendances système nécessaires (le paquet libmagic et d'autres outils de base)
-RUN apk update && apk add --no-cache \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     libmagic \
-    build-base \
-    bash \
-    && rm -rf /var/cache/apk/*
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 # Définir le répertoire de travail dans le conteneur
 WORKDIR /app
@@ -20,7 +19,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Étape finale pour créer l'image de production
-FROM python:3.10-alpine
+FROM python:3.10-slim
 
 # Définir le répertoire de travail
 WORKDIR /app
@@ -29,7 +28,7 @@ WORKDIR /app
 COPY --from=build /app /app
 
 # Installer TensorFlow et les autres dépendances nécessaires
-RUN pip install --no-cache-dir tensorflow==2.10.0
+RUN pip install --no-cache-dir tensorflow-cpu==2.10.0
 
 # Nettoyage des fichiers inutiles
 RUN rm -rf /root/.cache/pip && \
