@@ -17,9 +17,6 @@ COPY . /app
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Installer uvicorn pour le lancement de l'app
-RUN pip install uvicorn
-
 # Étape finale pour créer l'image de production
 FROM python:3.10-slim
 
@@ -29,8 +26,8 @@ WORKDIR /app
 # Copier les fichiers depuis l'étape de build
 COPY --from=build /app /app
 
-# Installer TensorFlow et les autres dépendances nécessaires
-RUN pip install --no-cache-dir tensorflow-cpu==2.10.0
+# Installer TensorFlow et Uvicorn pour l'exécution de l'API
+RUN pip install --no-cache-dir tensorflow-cpu==2.10.0 uvicorn
 
 # Nettoyage des fichiers inutiles
 RUN rm -rf /root/.cache/pip && \
@@ -40,4 +37,4 @@ RUN rm -rf /root/.cache/pip && \
 EXPOSE 5000
 
 # Commande pour démarrer l'application avec uvicorn
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
