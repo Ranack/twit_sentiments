@@ -1,10 +1,9 @@
 # Étape de build pour installer les dépendances
 FROM python:3.10-slim AS build
 
-# Installer les dépendances système nécessaires (le paquet libmagic et d'autres outils de base)
+# Installer les dépendances système nécessaires (enlever libmagic si non nécessaire)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
-    libmagic \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
