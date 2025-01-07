@@ -6,11 +6,27 @@ on:
       - main
 
 jobs:
+  # Job to set up environment and install dependencies
   setup-environment:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+
+    - name: Install Git LFS
+      run: |
+        curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
+        sudo apt-get install git-lfs
+        git lfs install
+
+    - name: Restore LFS Cache
+      id: restore-cache
+      uses: actions/cache@v3
+      with:
+        path: ./fine_tuned_roberta
+        key: lfs-model-cache-${{ runner.os }}-models
+        restore-keys: |
+          lfs-model-cache-${{ runner.os }}-
 
     - name: Install dependencies
       run: |
@@ -21,6 +37,7 @@ jobs:
       run: |
         python -m pip install pytest
 
+  # Job to run the API server
   run-api-server:
     runs-on: ubuntu-latest
     needs: setup-environment
@@ -38,12 +55,21 @@ jobs:
         done
         echo "API is ready"
 
+  # Job to run the unit tests
   run-tests:
     runs-on: ubuntu-latest
     needs: run-api-server
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+
+    - name: Restore Python dependencies cache
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
 
     - name: Run Unit Tests
       run: |
@@ -55,7 +81,8 @@ jobs:
         echo "Displaying API logs:"
         cat api_logs.txt
 
-  build-docker:
+  # Job to build and push Docker image
+  build-and-deploy:
     runs-on: ubuntu-latest
     needs: run-tests
     steps:
@@ -66,10 +93,6 @@ jobs:
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/twit_sentiments:latest .
 
-  push-docker-image:
-    runs-on: ubuntu-latest
-    needs: build-docker
-    steps:
     - name: Login to DockerHub
       uses: docker/login-action@v2
       with:
@@ -80,13 +103,14 @@ jobs:
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/twit_sentiments:latest
 
+  # Job to deploy Docker image to Azure
   deploy-to-azure:
     runs-on: ubuntu-latest
-    needs: push-docker-image
+    needs: build-and-deploy
     steps:
     - name: Deploy Docker image to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: twisentiment-v2
+        app-name: twisentiment-v2  # Nom de l'application Web Azure
         images: ${{ secrets.DOCKER_USERNAME }}/twit_sentiments:latest
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
