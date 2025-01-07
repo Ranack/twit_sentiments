@@ -19,6 +19,9 @@ class PredictionRequest(BaseModel):
 MODEL_DIR = "./fine_tuned_roberta"
 
 # Charger le tokenizer et le modèle une seule fois au démarrage
+tokenizer = None
+model = None
+
 try:
     logging.info("Loading tokenizer...")
     tokenizer = RobertaTokenizer.from_pretrained(MODEL_DIR)
@@ -27,7 +30,7 @@ try:
     logging.info("Tokenizer and model loaded successfully.")
 except Exception as e:
     logging.error(f"Error during loading: {e}")
-    raise HTTPException(status_code=500, detail=f"Error loading model or tokenizer: {e}")
+    raise RuntimeError(f"Error loading model or tokenizer: {e}")
 
 # Endpoint pour les prédictions
 @app.post("/predict/")
