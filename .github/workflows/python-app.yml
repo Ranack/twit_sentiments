@@ -48,10 +48,14 @@ jobs:
         echo "Starting API server..."
         nohup uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug > api_logs.txt 2>&1 &
         echo "Waiting for API to be ready..."
-        for i in {1..60}; do
-          curl -s http://127.0.0.1:5000/predict/ -o /dev/null && break || sleep 2
+        for i in {1..120}; do
+          curl -s http://127.0.0.1:5000/predict/ -o /dev/null && echo "API is ready" && break || sleep 2
         done
-        echo "API is ready"
+        if [ $? -ne 0 ]; then
+          echo "API did not start within the expected time."
+          cat api_logs.txt
+          exit 1
+        fi
 
     - name: Run Unit Tests
       run: |
