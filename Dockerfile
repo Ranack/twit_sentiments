@@ -44,9 +44,8 @@ ENV PATH="/app/venv/bin:$PATH"
 # Installer les dépendances Python nécessaires
 RUN pip install --upgrade pip
 
-# Exposer les ports utilisés par l'API (5000) et Streamlit (8501)
-EXPOSE 5000
-EXPOSE 8501
+# Exposer le port utilisé par l'API (80) et Streamlit (80 si c'est le même que l'API)
+EXPOSE 80
 
 # Copier le script d'entrée et le rendre exécutable
 COPY entrypoint.sh /app/entrypoint.sh

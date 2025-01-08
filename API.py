@@ -1,16 +1,18 @@
-from fastapi import FastAPI, BackgroundTasks, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-import logging
 import tensorflow as tf
 from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
-import os
+import logging
 import threading
+import os
+import time
 
 # Configuration des logs
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-# Créer un dossier pour le cache si nécessaire
+# Définir les répertoires de cache pour les modèles
 CACHE_DIR = "/app/cache"
 os.makedirs(CACHE_DIR, exist_ok=True)
 os.environ["TRANSFORMERS_CACHE"] = CACHE_DIR
@@ -50,15 +52,26 @@ def load_model():
         logging.info("Modèle et tokenizer chargés.")
         
         # Effectuer un warm-up du modèle
-        sample_input = tokenizer("Sample text for warm-up", return_tensors="tf", padding=True, truncation=True, max_length=64)
+        sample_input = tokenizer(
+            "Sample text for warm-up",
+            return_tensors="tf",
+            padding=True,
+            truncation=True,
+            max_length=64,
+        )
         _ = model(sample_input)
         logging.info("Le modèle a été préchauffé.")
     except Exception as e:
         logging.error(f"Erreur lors du chargement du modèle : {e}")
 
-# Fonction de pré-chargement du modèle dans un thread séparé
+# Lancer le chargement du modèle dans un thread séparé
 def load_model_thread():
     threading.Thread(target=load_model, daemon=True).start()
+
+@app.on_event("startup")
+async def startup_event():
+    # Charger le modèle de manière asynchrone
+    load_model_thread()
 
 # Route de santé (Azure health check)
 @app.get("/")
@@ -68,14 +81,13 @@ def health_check():
         raise HTTPException(status_code=503, detail="Modèle en cours de chargement")
     return {"status": "ok", "message": "API is up and running"}
 
-# Endpoint pour les prédictions
+# Endpoint pour effectuer des prédictions
 @app.post("/predict/")
 def predict(request: PredictionRequest):
     if model is None or tokenizer is None:
         logging.warning("Le modèle n'est pas encore chargé.")
         raise HTTPException(status_code=503, detail="Modèle en cours de chargement")
 
-    # Vérification que le texte n'est pas vide
     if not request.text.strip():
         logging.error("Texte vide reçu dans la requête.")
         raise HTTPException(status_code=400, detail="Le texte ne peut pas être vide.")
@@ -83,7 +95,6 @@ def predict(request: PredictionRequest):
     try:
         logging.info(f"Requête reçue pour prédiction : {request.text}")
 
-        # Tokenisation du texte
         inputs = tokenizer(
             request.text,
             return_tensors="tf",
@@ -91,14 +102,7 @@ def predict(request: PredictionRequest):
             truncation=True,
             max_length=64,
         )
-        logging.debug(f"Entrée tokenisée : {inputs}")
-
-        # Effectuer la prédiction
         outputs = model(inputs)
-        if not hasattr(outputs, "logits"):
-            logging.error("Les sorties du modèle ne contiennent pas de logits.")
-            raise HTTPException(status_code=500, detail="Erreur : logits manquants dans les sorties du modèle.")
-
         logits = outputs.logits
         probabilities = tf.nn.softmax(logits, axis=-1).numpy()[0]
         predicted_label = tf.argmax(probabilities).numpy()
@@ -115,12 +119,27 @@ def predict(request: PredictionRequest):
         logging.error(f"Erreur lors de la prédiction : {e}")
         raise HTTPException(status_code=500, detail=f"Erreur interne : {str(e)}")
 
-# Point d'entrée pour le déploiement (par exemple avec Docker ou Azure)
-@app.on_event("startup")
-async def startup_event():
-    # Charger le modèle de manière asynchrone en arrière-plan
-    load_model_thread()
+# Lancer Streamlit en arrière-plan
+def start_streamlit():
+    logging.info("Démarrage de Streamlit...")
+    os.system("streamlit run App.py --server.port 80 --server.headless true --server.enableCORS false")
+
+threading.Thread(target=start_streamlit, daemon=True).start()
+
+# Route pour afficher l'interface Streamlit via POST
+@app.post("/ui", response_class=HTMLResponse)
+async def serve_streamlit_ui(request: Request):
+    return """
+    <html>
+        <head>
+            <title>Streamlit UI</title>
+        </head>
+        <body style="margin: 0; padding: 0; height: 100%; overflow: hidden;">
+            <iframe src="/" frameborder="0" style="width: 100%; height: 100%;"></iframe>
+        </body>
+    </html>
+    """
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("API:app", host="0.0.0.0", port=5000, log_level="info")
+    uvicorn.run("API:app", host="0.0.0.0", port=80, log_level="info")

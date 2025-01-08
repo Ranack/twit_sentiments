@@ -1,8 +1,8 @@
 import streamlit as st
 import requests
 
-# Définir l'URL de votre API FastAPI sur Azure
-API_URL = "https://twisentiment-v2.azurewebsites.net/predict/"
+# Définir l'URL de votre API FastAPI sur Azure (avec le port 80)
+API_URL = "http://twisentiment-v2.azurewebsites.net:80/predict/"
 
 # Interface Streamlit
 st.title("Test de Classification de Texte avec RoBERTa Fine-Tuné")
