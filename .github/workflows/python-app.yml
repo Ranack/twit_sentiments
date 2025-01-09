@@ -37,28 +37,35 @@ jobs:
       run: |
         python -m pip install pytest
 
-    - name: Start API server and Streamlit interface
+    - name: Start API server
       run: |
-        echo "Starting API server and Streamlit interface..."
-        # Démarrer l'API en arrière-plan
-        uvicorn API:app --host 0.0.0.0 --port 5000 --log-level debug > api_logs.txt 2>&1 &
-        # Démarrer Streamlit en arrière-plan
-        streamlit run App.py --server.port 8501 --server.headless true > streamlit_logs.txt 2>&1 &
-        echo "Waiting for services to be ready..."
+        echo "Starting API server..."
+        # Démarrer l'API en arrière-plan sur le port 80
+        uvicorn API:app --host 0.0.0.0 --port 80 --log-level debug > api_logs.txt 2>&1 &
+        echo "Waiting for the API to be ready..."
 
         # Attendre que l'API soit prête
-        while ! curl -s http://127.0.0.1:5000/docs -o /dev/null; do
+        while ! curl -s http://127.0.0.1:80/docs -o /dev/null; do
           echo "API is not ready, waiting..."
           sleep 60
         done
 
+        echo "API is ready"
+
+    - name: Start Streamlit interface
+      run: |
+        echo "Starting Streamlit interface..."
+        # Démarrer Streamlit en arrière-plan sur le port 8080
+        streamlit run App.py --server.port 8080 --server.headless true --server.enableCORS false > streamlit_logs.txt 2>&1 &
+        echo "Waiting for Streamlit to be ready..."
+
         # Attendre que Streamlit soit prêt
-        while ! curl -s http://127.0.0.1:8501 -o /dev/null; do
+        while ! curl -s http://127.0.0.1:8080 -o /dev/null; do
           echo "Streamlit is not ready, waiting..."
           sleep 60
         done
 
-        echo "API and Streamlit interface are ready"
+        echo "Streamlit interface is ready"
 
     - name: Run Unit Tests
       run: |
@@ -69,6 +76,9 @@ jobs:
       run: |
         echo "Displaying API logs:"
         cat api_logs.txt
+
+    - name: Display Streamlit logs
+      run: |
         echo "Displaying Streamlit logs:"
         cat streamlit_logs.txt
 
