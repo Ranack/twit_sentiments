@@ -1,6 +1,4 @@
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import tensorflow as tf
 from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
@@ -12,8 +10,8 @@ import time
 # Configuration des logs
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-# Définir les répertoires de cache pour les modèles
-CACHE_DIR = "/app/cache"
+# Définir les répertoires de cache pour les modèles (chemin local pour le développement)
+CACHE_DIR = "./cache"  # Utiliser un dossier local pour stocker le cache
 os.makedirs(CACHE_DIR, exist_ok=True)
 os.environ["TRANSFORMERS_CACHE"] = CACHE_DIR
 os.environ["HF_HOME"] = CACHE_DIR
@@ -21,15 +19,6 @@ os.environ["TFHUB_CACHE_DIR"] = CACHE_DIR
 
 # Création de l'application FastAPI
 app = FastAPI()
-
-# Ajouter CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Accepter les requêtes depuis n'importe quelle origine
-    allow_credentials=True,
-    allow_methods=["*"],  # Accepter toutes les méthodes (GET, POST, etc.)
-    allow_headers=["*"],  # Accepter tous les headers
-)
 
 # Schéma de requête attendu
 class PredictionRequest(BaseModel):
@@ -81,8 +70,8 @@ def health_check():
         raise HTTPException(status_code=503, detail="Modèle en cours de chargement")
     return {"status": "ok", "message": "API is up and running"}
 
-# Endpoint pour effectuer des prédictions
-@app.post("/predict/")
+# Endpoint pour effectuer des prédictions à la racine
+@app.post("/")  # Modifié pour l'endpoint à la racine
 def predict(request: PredictionRequest):
     if model is None or tokenizer is None:
         logging.warning("Le modèle n'est pas encore chargé.")
@@ -119,27 +108,6 @@ def predict(request: PredictionRequest):
         logging.error(f"Erreur lors de la prédiction : {e}")
         raise HTTPException(status_code=500, detail=f"Erreur interne : {str(e)}")
 
-# Lancer Streamlit en arrière-plan
-def start_streamlit():
-    logging.info("Démarrage de Streamlit...")
-    os.system("streamlit run App.py --server.port 80 --server.headless true --server.enableCORS false")
-
-threading.Thread(target=start_streamlit, daemon=True).start()
-
-# Route pour afficher l'interface Streamlit via POST
-@app.post("/ui", response_class=HTMLResponse)
-async def serve_streamlit_ui(request: Request):
-    return """
-    <html>
-        <head>
-            <title>Streamlit UI</title>
-        </head>
-        <body style="margin: 0; padding: 0; height: 100%; overflow: hidden;">
-            <iframe src="/" frameborder="0" style="width: 100%; height: 100%;"></iframe>
-        </body>
-    </html>
-    """
-
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("API:app", host="0.0.0.0", port=80, log_level="info")
+    uvicorn.run("API:app", host="127.0.0.1", port=5000, log_level="info")

@@ -1,8 +1,8 @@
 import streamlit as st
 import requests
 
-# Définir l'URL de votre API FastAPI sur Azure (avec le port 80)
-API_URL = "http://twisentiment-v2.azurewebsites.net:80/predict/"
+# Définir l'URL de votre API FastAPI sur Azure ou en local (avec le port 5000 en local)
+API_URL = "http://127.0.0.1:5000/"  # Utilisation de l'URL racine
 
 # Interface Streamlit
 st.title("Test de Classification de Texte avec RoBERTa Fine-Tuné")
@@ -19,7 +19,8 @@ if st.button("Prédire"):
         # Afficher un message de chargement
         with st.spinner("Envoi de la requête à l'API..."):
             try:
-                response = requests.post(API_URL, json=payload)
+                # Augmenter le timeout pour éviter les erreurs de connexion
+                response = requests.post(API_URL, json=payload, timeout=10)
 
                 # Vérifier la réponse de l'API
                 if response.status_code == 200:

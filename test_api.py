@@ -1,8 +1,8 @@
 import pytest
 import requests
 
-# URL de base pour l'API
-BASE_URL = "http://127.0.0.1:80/predict/"  # Le port doit être 80 pour correspondre à votre API
+# URL de base pour l'API (mise à jour avec le port 5000)
+BASE_URL = "http://127.0.0.1:5000"  # Le port doit être 5000 pour correspondre à votre API
 
 @pytest.fixture
 def headers():
