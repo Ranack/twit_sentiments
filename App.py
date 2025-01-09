@@ -1,5 +1,7 @@
+import os
 import streamlit as st
 import requests
+
 
 # Définir l'URL de votre API FastAPI sur Azure ou en local (avec le port 5000 en local)
 API_URL = "http://127.0.0.1:5000/"  # Utilisation de l'URL racine
