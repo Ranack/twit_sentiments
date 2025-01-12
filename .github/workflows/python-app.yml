@@ -52,21 +52,6 @@ jobs:
 
         echo "API is ready"
 
-    - name: Start Streamlit interface
-      run: |
-        echo "Starting Streamlit interface..."
-        # Démarrer Streamlit en arrière-plan sur le port 8000
-        streamlit run App.py --server.port 8000 --server.headless true --server.enableCORS false > streamlit_logs.txt 2>&1 &
-        echo "Waiting for Streamlit to be ready..."
-
-        # Attendre que Streamlit soit prêt
-        while ! curl -s http://127.0.0.1:8000 -o /dev/null; do
-          echo "Streamlit is not ready, waiting..."
-          sleep 60
-        done
-
-        echo "Streamlit interface is ready"
-
     - name: Run Unit Tests
       run: |
         echo "Running unit tests..."
@@ -76,11 +61,6 @@ jobs:
       run: |
         echo "Displaying API logs:"
         cat api_logs.txt
-
-    - name: Display Streamlit logs
-      run: |
-        echo "Displaying Streamlit logs:"
-        cat streamlit_logs.txt
 
     - name: Build Docker image
       run: |
