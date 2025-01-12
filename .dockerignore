@@ -1,6 +1,10 @@
-fine_tuned_roberta/  # Exclure les modèles non compressés
+.git
+.github
+.gitignore
+.gitattributes
 __pycache__/
 *.pyc
-*.pyo
+App.py
+entrypoint.sh
+test_api.py
 *.log
-.DS_Store

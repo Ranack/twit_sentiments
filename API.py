@@ -1,10 +1,11 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import tensorflow as tf
 from transformers import RobertaTokenizer, TFRobertaForSequenceClassification
 import logging
 import threading
 import os
+import gc  # Importer le module gc
 import time
 
 # Configuration des logs
@@ -71,7 +72,7 @@ def health_check():
     return {"status": "ok", "message": "API is up and running"}
 
 # Endpoint pour effectuer des prédictions à la racine
-@app.post("/")  # Modifié pour l'endpoint à la racine
+@app.post("/")
 def predict(request: PredictionRequest):
     if model is None or tokenizer is None:
         logging.warning("Le modèle n'est pas encore chargé.")
@@ -102,10 +103,15 @@ def predict(request: PredictionRequest):
             "confidence": float(probabilities[predicted_label]),
         }
 
+        # Nettoyage explicite de la mémoire
+        gc.collect()
+
         logging.info(f"Prédiction réussie : {response}")
         return response
     except Exception as e:
         logging.error(f"Erreur lors de la prédiction : {e}")
+        # Nettoyer la mémoire même en cas d'erreur
+        gc.collect()
         raise HTTPException(status_code=500, detail=f"Erreur interne : {str(e)}")
 
 if __name__ == "__main__":
