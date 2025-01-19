@@ -88,11 +88,11 @@ The response returned by the API could look like this:
 
 
 `{
-  “label": ‘positive’,
+  “label": ‘1’,
   “confidence": 0.98
 }` 
 
-This means that the text has been classified as positive with a probability of 98%.
+This means that the text has been classified as positive (1) (négative is 0) with a probability of 98%.
 
 ## Project structure
 
@@ -212,11 +212,11 @@ La réponse renvoyée par l'API pourrait ressembler à ceci :
 
 
 `{
-  "label": "positive",
+  "label": "1",
   "confidence": 0.98
 }` 
 
-Cela signifie que le texte a été classé comme positif avec une probabilité de 98%.
+Cela signifie que le texte a été classé comme positif (1) (0 correspond à un sentiment négatif) avec une probabilité de 98%.
 
 ## Structure du Projet
 
