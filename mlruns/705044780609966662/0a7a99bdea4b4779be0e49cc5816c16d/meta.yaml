@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/705044780609966662/0a7a99bdea4b4779be0e49cc5816c16d/artifacts
+end_time: 1734022059028
+entry_point_name: ''
+experiment_id: '705044780609966662'
+lifecycle_stage: active
+run_id: 0a7a99bdea4b4779be0e49cc5816c16d
+run_name: traveling-asp-436
+run_uuid: 0a7a99bdea4b4779be0e49cc5816c16d
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734019113746
+status: 4
+tags: []
+user_id: kevinroualec

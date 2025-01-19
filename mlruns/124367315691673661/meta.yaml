@@ -1,0 +1,6 @@
+artifact_location: mlflow-artifacts:/124367315691673661
+creation_time: 1734785171578
+experiment_id: '124367315691673661'
+last_update_time: 1734785171578
+lifecycle_stage: active
+name: Fine_tuning_RoBERTa

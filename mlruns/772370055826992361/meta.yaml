@@ -1,0 +1,6 @@
+artifact_location: mlflow-artifacts:/772370055826992361
+creation_time: 1734944394862
+experiment_id: '772370055826992361'
+last_update_time: 1734944394862
+lifecycle_stage: active
+name: Fine_tuning_DistilBERT_Optimized

@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kevinroualec/Desktop/AI%20Engineer/P7/mlruns/0/f4d20b0588924111b41f9770238556cd/artifacts
+end_time: 1734260008018
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: f4d20b0588924111b41f9770238556cd
+run_name: bemused-swan-319
+run_uuid: f4d20b0588924111b41f9770238556cd
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734259434662
+status: 4
+tags: []
+user_id: kevinroualec

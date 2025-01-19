@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kevinroualec/Desktop/AI%20Engineer/P7/mlruns/0/165f55ce55f44b56b1d72689f779a3d2/artifacts
+end_time: 1734277278335
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 165f55ce55f44b56b1d72689f779a3d2
+run_name: beautiful-dog-585
+run_uuid: 165f55ce55f44b56b1d72689f779a3d2
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734276591138
+status: 4
+tags: []
+user_id: kevinroualec

@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/772370055826992361/86aeb462aeb7425b8eaf020d060450f8/artifacts
+end_time: 1734961962873
+entry_point_name: ''
+experiment_id: '772370055826992361'
+lifecycle_stage: active
+run_id: 86aeb462aeb7425b8eaf020d060450f8
+run_name: Fine-tuning_DistilBERT_Optimized
+run_uuid: 86aeb462aeb7425b8eaf020d060450f8
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734957187838
+status: 3
+tags: []
+user_id: kevinroualec

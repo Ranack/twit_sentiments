@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/5595364884f44d82b2c5de899a3f0222/artifacts
+end_time: 1734088223674
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: active
+run_id: 5595364884f44d82b2c5de899a3f0222
+run_name: nervous-flea-167
+run_uuid: 5595364884f44d82b2c5de899a3f0222
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734084300987
+status: 3
+tags: []
+user_id: kevinroualec

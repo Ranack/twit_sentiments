@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/1ee0c2b2b62c47558b011d7a9d8309e3/artifacts
+deleted_time: 1733741171307
+end_time: 1733740641953
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: deleted
+run_id: 1ee0c2b2b62c47558b011d7a9d8309e3
+run_name: vaunted-hare-555
+run_uuid: 1ee0c2b2b62c47558b011d7a9d8309e3
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733740639623
+status: 3
+tags: []
+user_id: kevinroualec

@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/347b6d0b97d840e0bcd36109767570ae/artifacts
+end_time: 1734631738893
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: active
+run_id: 347b6d0b97d840e0bcd36109767570ae
+run_name: Text_Classification_Bi_LSTM_FastText
+run_uuid: 347b6d0b97d840e0bcd36109767570ae
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734617161998
+status: 4
+tags: []
+user_id: kevinroualec

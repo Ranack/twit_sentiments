@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/fdd024a1c373409793080a55bb96ce2e/artifacts
+end_time: 1734197647750
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: active
+run_id: fdd024a1c373409793080a55bb96ce2e
+run_name: unruly-gull-522
+run_uuid: fdd024a1c373409793080a55bb96ce2e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734195530004
+status: 3
+tags: []
+user_id: kevinroualec

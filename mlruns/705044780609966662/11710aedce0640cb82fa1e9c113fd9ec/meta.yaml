@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/705044780609966662/11710aedce0640cb82fa1e9c113fd9ec/artifacts
+end_time: 1734014372006
+entry_point_name: ''
+experiment_id: '705044780609966662'
+lifecycle_stage: active
+run_id: 11710aedce0640cb82fa1e9c113fd9ec
+run_name: selective-ant-197
+run_uuid: 11710aedce0640cb82fa1e9c113fd9ec
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734014327022
+status: 4
+tags: []
+user_id: kevinroualec

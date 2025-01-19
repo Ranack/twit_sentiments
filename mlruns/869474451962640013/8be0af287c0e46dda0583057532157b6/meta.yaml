@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/8be0af287c0e46dda0583057532157b6/artifacts
+end_time: 1734083063374
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: active
+run_id: 8be0af287c0e46dda0583057532157b6
+run_name: sassy-crow-532
+run_uuid: 8be0af287c0e46dda0583057532157b6
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734081148906
+status: 4
+tags: []
+user_id: kevinroualec

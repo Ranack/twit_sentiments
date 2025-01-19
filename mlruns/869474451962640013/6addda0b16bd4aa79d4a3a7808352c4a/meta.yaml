@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/6addda0b16bd4aa79d4a3a7808352c4a/artifacts
+end_time: 1734547697393
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: active
+run_id: 6addda0b16bd4aa79d4a3a7808352c4a
+run_name: enchanting-pig-680
+run_uuid: 6addda0b16bd4aa79d4a3a7808352c4a
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734545552075
+status: 3
+tags: []
+user_id: kevinroualec

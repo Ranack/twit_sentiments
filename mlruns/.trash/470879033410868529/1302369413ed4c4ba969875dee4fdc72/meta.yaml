@@ -1,0 +1,16 @@
+artifact_uri: file:///Users/kevinroualec/Desktop/AI Engineer/P7/mlruns/470879033410868529/1302369413ed4c4ba969875dee4fdc72/artifacts
+deleted_time: 1733673138441
+end_time: 1733673091782
+entry_point_name: ''
+experiment_id: '470879033410868529'
+lifecycle_stage: deleted
+run_id: 1302369413ed4c4ba969875dee4fdc72
+run_name: flawless-lynx-182
+run_uuid: 1302369413ed4c4ba969875dee4fdc72
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733673090812
+status: 3
+tags: []
+user_id: kevinroualec

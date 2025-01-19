@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/7beca9359a604aa3ac032a50c5177aaf/artifacts
+deleted_time: 1733741171316
+end_time: 1733737628625
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: deleted
+run_id: 7beca9359a604aa3ac032a50c5177aaf
+run_name: melodic-ox-950
+run_uuid: 7beca9359a604aa3ac032a50c5177aaf
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733737417630
+status: 4
+tags: []
+user_id: kevinroualec

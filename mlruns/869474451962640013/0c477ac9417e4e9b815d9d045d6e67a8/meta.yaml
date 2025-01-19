@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/0c477ac9417e4e9b815d9d045d6e67a8/artifacts
+end_time: 1733741655498
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: active
+run_id: 0c477ac9417e4e9b815d9d045d6e67a8
+run_name: bright-snail-141
+run_uuid: 0c477ac9417e4e9b815d9d045d6e67a8
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733741511103
+status: 3
+tags: []
+user_id: kevinroualec

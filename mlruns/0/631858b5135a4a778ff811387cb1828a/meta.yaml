@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kevinroualec/Desktop/AI%20Engineer/P7/mlruns/0/631858b5135a4a778ff811387cb1828a/artifacts
+end_time: 1734278865968
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 631858b5135a4a778ff811387cb1828a
+run_name: persistent-wolf-8
+run_uuid: 631858b5135a4a778ff811387cb1828a
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734277475277
+status: 4
+tags: []
+user_id: kevinroualec

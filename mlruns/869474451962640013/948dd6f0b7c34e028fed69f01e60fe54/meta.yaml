@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/948dd6f0b7c34e028fed69f01e60fe54/artifacts
+deleted_time: 1733741171302
+end_time: 1733740988528
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: deleted
+run_id: 948dd6f0b7c34e028fed69f01e60fe54
+run_name: efficient-flea-13
+run_uuid: 948dd6f0b7c34e028fed69f01e60fe54
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733740986108
+status: 3
+tags: []
+user_id: kevinroualec

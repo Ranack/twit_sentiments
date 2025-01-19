@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/705044780609966662/b837fb5217a94facaa49ce73a6e7247e/artifacts
+end_time: 1734031316133
+entry_point_name: ''
+experiment_id: '705044780609966662'
+lifecycle_stage: active
+run_id: b837fb5217a94facaa49ce73a6e7247e
+run_name: traveling-deer-710
+run_uuid: b837fb5217a94facaa49ce73a6e7247e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734028387395
+status: 3
+tags: []
+user_id: kevinroualec

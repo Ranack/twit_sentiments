@@ -1,0 +1,6 @@
+artifact_location: mlflow-artifacts:/705044780609966662
+creation_time: 1734014257488
+experiment_id: '705044780609966662'
+last_update_time: 1734014257488
+lifecycle_stage: active
+name: Text_Classification_CNN

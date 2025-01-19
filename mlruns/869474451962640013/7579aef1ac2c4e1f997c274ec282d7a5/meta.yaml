@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/7579aef1ac2c4e1f997c274ec282d7a5/artifacts
+end_time: 1734545419366
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: active
+run_id: 7579aef1ac2c4e1f997c274ec282d7a5
+run_name: welcoming-wren-899
+run_uuid: 7579aef1ac2c4e1f997c274ec282d7a5
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734542638519
+status: 3
+tags: []
+user_id: kevinroualec

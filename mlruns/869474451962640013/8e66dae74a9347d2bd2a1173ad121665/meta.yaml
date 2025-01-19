@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/8e66dae74a9347d2bd2a1173ad121665/artifacts
+deleted_time: 1733741171302
+end_time: 1733740885856
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: deleted
+run_id: 8e66dae74a9347d2bd2a1173ad121665
+run_name: secretive-tern-333
+run_uuid: 8e66dae74a9347d2bd2a1173ad121665
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733740884600
+status: 3
+tags: []
+user_id: kevinroualec

@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/558333449273849306/f017ec015b6b4e128513f0abfd9a5eb8/artifacts
+end_time: 1734822815381
+entry_point_name: ''
+experiment_id: '558333449273849306'
+lifecycle_stage: active
+run_id: f017ec015b6b4e128513f0abfd9a5eb8
+run_name: Fine-tuning_RoBERTa_Optimized
+run_uuid: f017ec015b6b4e128513f0abfd9a5eb8
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734814497591
+status: 4
+tags: []
+user_id: kevinroualec

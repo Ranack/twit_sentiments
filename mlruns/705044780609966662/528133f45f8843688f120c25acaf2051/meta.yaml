@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/705044780609966662/528133f45f8843688f120c25acaf2051/artifacts
+end_time: 1734014497719
+entry_point_name: ''
+experiment_id: '705044780609966662'
+lifecycle_stage: active
+run_id: 528133f45f8843688f120c25acaf2051
+run_name: chill-fawn-759
+run_uuid: 528133f45f8843688f120c25acaf2051
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734014491443
+status: 4
+tags: []
+user_id: kevinroualec

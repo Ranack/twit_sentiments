@@ -1,0 +1,16 @@
+artifact_uri: file:///Users/kevinroualec/Desktop/AI Engineer/P7/mlruns/470879033410868529/26ce5af2111a433494552d642e7063d6/artifacts
+deleted_time: 1733673138441
+end_time: 1733672428348
+entry_point_name: ''
+experiment_id: '470879033410868529'
+lifecycle_stage: deleted
+run_id: 26ce5af2111a433494552d642e7063d6
+run_name: amazing-wasp-97
+run_uuid: 26ce5af2111a433494552d642e7063d6
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733672427383
+status: 3
+tags: []
+user_id: kevinroualec

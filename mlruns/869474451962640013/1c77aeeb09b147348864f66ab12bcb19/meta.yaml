@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/1c77aeeb09b147348864f66ab12bcb19/artifacts
+deleted_time: 1733741171319
+end_time: 1733736269617
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: deleted
+run_id: 1c77aeeb09b147348864f66ab12bcb19
+run_name: stylish-tern-359
+run_uuid: 1c77aeeb09b147348864f66ab12bcb19
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733735970034
+status: 4
+tags: []
+user_id: kevinroualec

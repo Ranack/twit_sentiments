@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/2145e010ead3479d988ce1774d6c48e2/artifacts
+end_time: 1734460258185
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: active
+run_id: 2145e010ead3479d988ce1774d6c48e2
+run_name: Text_Classification_CNN_GloVe
+run_uuid: 2145e010ead3479d988ce1774d6c48e2
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734454572027
+status: 3
+tags: []
+user_id: kevinroualec

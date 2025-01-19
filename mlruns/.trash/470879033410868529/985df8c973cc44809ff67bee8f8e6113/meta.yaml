@@ -1,0 +1,16 @@
+artifact_uri: file:///Users/kevinroualec/Desktop/AI Engineer/P7/mlruns/470879033410868529/985df8c973cc44809ff67bee8f8e6113/artifacts
+deleted_time: 1733673138441
+end_time: 1733672468477
+entry_point_name: ''
+experiment_id: '470879033410868529'
+lifecycle_stage: deleted
+run_id: 985df8c973cc44809ff67bee8f8e6113
+run_name: indecisive-hound-682
+run_uuid: 985df8c973cc44809ff67bee8f8e6113
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733672467436
+status: 3
+tags: []
+user_id: kevinroualec

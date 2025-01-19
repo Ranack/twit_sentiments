@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/313689898629814961/41da009364e44eddbb5b6437c8040db4/artifacts
+deleted_time: 1733741149575
+end_time: 1733673186620
+entry_point_name: ''
+experiment_id: '313689898629814961'
+lifecycle_stage: deleted
+run_id: 41da009364e44eddbb5b6437c8040db4
+run_name: adventurous-kit-518
+run_uuid: 41da009364e44eddbb5b6437c8040db4
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733673185170
+status: 3
+tags: []
+user_id: kevinroualec

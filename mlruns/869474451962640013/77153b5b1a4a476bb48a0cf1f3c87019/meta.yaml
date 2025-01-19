@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/77153b5b1a4a476bb48a0cf1f3c87019/artifacts
+deleted_time: 1733741171307
+end_time: 1733740720865
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: deleted
+run_id: 77153b5b1a4a476bb48a0cf1f3c87019
+run_name: clean-bat-555
+run_uuid: 77153b5b1a4a476bb48a0cf1f3c87019
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733740718533
+status: 3
+tags: []
+user_id: kevinroualec

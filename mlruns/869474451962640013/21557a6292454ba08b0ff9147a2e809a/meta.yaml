@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/21557a6292454ba08b0ff9147a2e809a/artifacts
+deleted_time: 1733741171316
+end_time: 1733736426358
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: deleted
+run_id: 21557a6292454ba08b0ff9147a2e809a
+run_name: unruly-rook-732
+run_uuid: 21557a6292454ba08b0ff9147a2e809a
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733736344758
+status: 4
+tags: []
+user_id: kevinroualec

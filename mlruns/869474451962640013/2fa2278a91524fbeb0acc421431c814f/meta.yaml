@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/2fa2278a91524fbeb0acc421431c814f/artifacts
+deleted_time: 1733741171316
+end_time: 1733737330299
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: deleted
+run_id: 2fa2278a91524fbeb0acc421431c814f
+run_name: kindly-gnu-528
+run_uuid: 2fa2278a91524fbeb0acc421431c814f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733736490988
+status: 4
+tags: []
+user_id: kevinroualec

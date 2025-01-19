@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kevinroualec/Desktop/AI%20Engineer/P7/mlruns/0/bfe213ca0eaa48ce8efd1904931521fc/artifacts
+end_time: 1734259329492
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: bfe213ca0eaa48ce8efd1904931521fc
+run_name: invincible-snipe-328
+run_uuid: bfe213ca0eaa48ce8efd1904931521fc
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734258037632
+status: 4
+tags: []
+user_id: kevinroualec

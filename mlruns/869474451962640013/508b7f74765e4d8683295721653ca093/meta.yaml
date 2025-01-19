@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/508b7f74765e4d8683295721653ca093/artifacts
+deleted_time: 1733741171308
+end_time: 1733740466889
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: deleted
+run_id: 508b7f74765e4d8683295721653ca093
+run_name: skittish-jay-657
+run_uuid: 508b7f74765e4d8683295721653ca093
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733740465670
+status: 3
+tags: []
+user_id: kevinroualec

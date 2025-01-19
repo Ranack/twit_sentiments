@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/9894e16dcd1f4dbe9857b9071cbaef05/artifacts
+deleted_time: 1733741171312
+end_time: 1733738956583
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: deleted
+run_id: 9894e16dcd1f4dbe9857b9071cbaef05
+run_name: redolent-rook-481
+run_uuid: 9894e16dcd1f4dbe9857b9071cbaef05
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733738539436
+status: 3
+tags: []
+user_id: kevinroualec

@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kevinroualec/Desktop/AI%20Engineer/P7/mlruns/0/880896879ece4dd1a71012e73c74ad37/artifacts
+end_time: 1734282325382
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 880896879ece4dd1a71012e73c74ad37
+run_name: mysterious-crab-979
+run_uuid: 880896879ece4dd1a71012e73c74ad37
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734281544204
+status: 4
+tags: []
+user_id: kevinroualec

@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/37fe3c409c264cbea639e6ff24622b31/artifacts
+deleted_time: 1733741171312
+end_time: 1733738464177
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: deleted
+run_id: 37fe3c409c264cbea639e6ff24622b31
+run_name: legendary-robin-206
+run_uuid: 37fe3c409c264cbea639e6ff24622b31
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733738445209
+status: 4
+tags: []
+user_id: kevinroualec

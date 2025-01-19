@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/8bd538375941476a8713dc3b3cb9b0a2/artifacts
+end_time: 1734118343233
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: active
+run_id: 8bd538375941476a8713dc3b3cb9b0a2
+run_name: luxuriant-turtle-601
+run_uuid: 8bd538375941476a8713dc3b3cb9b0a2
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734114346818
+status: 3
+tags: []
+user_id: kevinroualec

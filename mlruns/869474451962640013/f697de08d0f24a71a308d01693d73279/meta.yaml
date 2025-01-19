@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/869474451962640013/f697de08d0f24a71a308d01693d73279/artifacts
+deleted_time: 1733741171302
+end_time: 1733740874274
+entry_point_name: ''
+experiment_id: '869474451962640013'
+lifecycle_stage: deleted
+run_id: f697de08d0f24a71a308d01693d73279
+run_name: aged-loon-892
+run_uuid: f697de08d0f24a71a308d01693d73279
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733740873061
+status: 3
+tags: []
+user_id: kevinroualec

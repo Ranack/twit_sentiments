@@ -1,0 +1,16 @@
+artifact_uri: file:///Users/kevinroualec/Desktop/AI Engineer/P7/mlruns/470879033410868529/68167b1e077c44feae93e1672601c468/artifacts
+deleted_time: 1733673138441
+end_time: 1733672667213
+entry_point_name: ''
+experiment_id: '470879033410868529'
+lifecycle_stage: deleted
+run_id: 68167b1e077c44feae93e1672601c468
+run_name: unleashed-koi-303
+run_uuid: 68167b1e077c44feae93e1672601c468
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733672666227
+status: 3
+tags: []
+user_id: kevinroualec
